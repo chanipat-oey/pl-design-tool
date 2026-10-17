@@ -116,3 +116,10 @@ svg .surface { stroke: var(--theme-accent); }
   background: #f3f7f5;
   border-left-color: var(--theme-line);
 }
+
+/* v6: navigation between PLD calculators. */
+.tool-nav { display:flex; gap:3px; padding:3px; border-radius:6px; background:var(--theme-soft); }
+.tool-nav a { padding:7px 11px; border-radius:4px; color:var(--theme-dark); font-size:11px; text-decoration:none; }
+.tool-nav a[aria-current="page"] { color:#fff; background:var(--theme-accent); }
+@media (max-width:760px) { .header-tools { gap:8px; } .tool-nav a { padding:7px 9px; } }
+@media (max-width:560px) { .tool-nav { order:2; position:absolute; top:72px; left:5%; right:5%; justify-content:center; } .tool-nav a { flex:1; text-align:center; } main { padding-top:72px; } }
