@@ -7,25 +7,32 @@
     return {values: Object.fromEntries(fields.map(key => [key, ''])), active: [], result: null, error: null};
   }
 
-  function edit(state, key, value) {
+  function evaluate(values, active, options = {}) {
+    let result = null, error = active.length < 2 ? 'SECOND' : null;
+    try {
+      if (active.length === 1) calculator.number(values[active[0]], active[0]);
+      if (active.length === 2) result = calculator.calculate(active, values, options);
+    } catch (issue) { error = issue.code || 'INVALID'; }
+    const nextValues = {...values};
+    if (result) {
+      for (const field of fields) if (!active.includes(field)) nextValues[field] = result.user[field];
+    } else {
+      for (const field of fields) if (!active.includes(field)) nextValues[field] = '';
+    }
+    return {values:nextValues, active:[...active], result, error};
+  }
+
+  function edit(state, key, value, options = {}) {
     if (!fields.includes(key)) throw new Error('Unknown stair input.');
     const values = {...state.values, [key]: value};
     const previous = state.active.find(other => other !== key && String(values[other] ?? '').trim() !== '');
     const active = String(value).trim() === '' ? state.active.filter(item => item !== key) : previous ? [key, previous] : [key];
-    let result = null, error = active.length < 2 ? 'SECOND' : null;
-    try {
-      if (active.length === 1) calculator.number(values[active[0]], active[0]);
-      if (active.length === 2) result = calculator.calculate(active, values);
-    } catch (issue) { error = issue.code || 'INVALID'; }
-    if (result) {
-      for (const field of fields) if (!active.includes(field)) values[field] = result.user[field];
-    } else {
-      for (const field of fields) if (!active.includes(field)) values[field] = '';
-    }
-    return {values, active, result, error};
+    return evaluate(values, active, options);
   }
 
-  const api = {create, edit};
+  function recalculate(state, options = {}) { return evaluate(state.values, state.active, options); }
+
+  const api = {create, edit, recalculate};
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StairInputState = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -20,7 +20,7 @@
     return result;
   }
 
-  function parseInputs(active, values) {
+  function parseInputs(active, values, flights = 1) {
     if (!Array.isArray(active) || active.length !== 2 || active[0] === active[1]) failure('SECOND');
     const parsed = {};
     for (const key of active) {
@@ -28,7 +28,8 @@
       parsed[key] = number(values[key], key);
     }
     if (active.includes('ratio') && active.includes('percentage')) failure('DUPLICATE_SLOPE');
-    if (parsed.risers && parsed.treads && parsed.treads !== parsed.risers - 1) failure('COUNT_RELATION');
+    if (parsed.risers && parsed.risers <= flights) failure('FLIGHTS_GEOMETRY');
+    if (parsed.risers && parsed.treads && parsed.treads !== parsed.risers - flights) failure('COUNT_RELATION');
     return parsed;
   }
 
@@ -43,8 +44,8 @@
     return {x: (ac * bb - bc * ab) / det, y: (bc * aa - ac * ab) / det};
   }
 
-  function result(nr, r, t) {
-    const nt = nr - 1, totalRise = nr * r, totalRun = nt * t;
+  function result(nr, r, t, flights = 1) {
+    const nt = nr - flights, totalRise = nr * r, totalRun = nt * t;
     if (![r, t, totalRise, totalRun].every(v => Number.isFinite(v) && v > 0)) failure('GEOMETRY');
     return {
       risers: nr,
@@ -60,14 +61,15 @@
     };
   }
 
-  function countCandidates(input) {
+  function countCandidates(input, flights) {
     if (input.risers) return [input.risers];
-    if (input.treads) return [input.treads + 1];
-    return Array.from({length: 79}, (_, index) => index + 2);
+    if (input.treads) return [input.treads + flights];
+    return Array.from({length: Math.max(1, 80 - flights)}, (_, index) => index + flights + 1);
   }
 
-  function userCandidate(nr, input) {
-    const nt = nr - 1;
+  function userCandidate(nr, input, flights) {
+    const nt = nr - flights;
+    if (nt <= 0) return null;
     const eq = [
       {a: 1, b: 0, c: Math.log(0.15), w: 1},
       {a: 0, b: 1, c: Math.log(0.30), w: 1}
@@ -81,11 +83,12 @@
     const solved = solveLinear(eq), r = Math.exp(solved.x), t = Math.exp(solved.y);
     let score = eq.reduce((sum, e) => sum + e.w * Math.pow(e.a * solved.x + e.b * solved.y - e.c, 2), 0);
     if (!input.risers && !input.treads) score += Math.pow((nr - 7) / 6, 2) * 0.05;
-    return {data: result(nr, r, t), score};
+    return {data: result(nr, r, t, flights), score};
   }
 
-  function recommendedCandidate(nr, input) {
-    const nt = nr - 1;
+  function recommendedCandidate(nr, input, flights) {
+    const nt = nr - flights;
+    if (nt <= 0) return null;
     const hardR = input.totalRise ? input.totalRise / nr : null;
     const hardT = input.totalRun ? input.totalRun / nt : null;
     const ratio = input.ratio || (input.percentage ? 100 / input.percentage : null);
@@ -109,7 +112,7 @@
       r = 0.15; t = 0.33;
     }
     if (!(r > 0.03 && t > 0.05)) return null;
-    const data = result(nr, r, t);
+    const data = result(nr, r, t, flights);
     let score = Math.pow((data.comfort - 0.63) / 0.01, 2);
     if (input.riserHeight) score += Math.pow((data.riserHeight - input.riserHeight) / 0.01, 2);
     if (input.treadDepth) score += Math.pow((data.treadDepth - input.treadDepth) / 0.015, 2);
@@ -126,20 +129,22 @@
     return valid[0].data;
   }
 
-  function calculate(active, values) {
-    const input = parseInputs(active, values);
-    const counts = countCandidates(input);
-    const user = best(counts.map(nr => userCandidate(nr, input)));
-    const recommended = best(counts.map(nr => recommendedCandidate(nr, input)));
+  function calculate(active, values, options = {}) {
+    const flights = options.flights === undefined ? 1 : Number(options.flights);
+    if (!Number.isInteger(flights) || flights < 1 || flights > 30) failure('FLIGHTS');
+    const input = parseInputs(active, values, flights);
+    const counts = countCandidates(input, flights);
+    const user = best(counts.map(nr => userCandidate(nr, input, flights)));
+    const recommended = best(counts.map(nr => recommendedCandidate(nr, input, flights)));
     return {
-      input,
+      input, flights,
       user,
       recommended,
       usesDefaults: !input.riserHeight || !input.treadDepth || (!input.risers && !input.treads && !input.totalRise && !input.totalRun)
     };
   }
 
-  const api = {fields, calculate, number};
+  const api = {fields, calculate, number, result};
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StairCalculator = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
