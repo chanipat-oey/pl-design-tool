@@ -132,12 +132,34 @@
   function calculate(active, values, options = {}) {
     const flights = options.flights === undefined ? 1 : Number(options.flights);
     if (!Number.isInteger(flights) || flights < 1 || flights > 30) failure('FLIGHTS');
+    const runMode = options.runMode === 'fixed' ? 'fixed' : 'extend';
+    const landingTotal = options.landingTotal === undefined ? 0 : Number(options.landingTotal);
+    if (!Number.isFinite(landingTotal) || landingTotal < 0) failure('LANDING');
     const input = parseInputs(active, values, flights);
+    let enteredOverallRun = null;
+    if (runMode === 'fixed' && input.totalRun) {
+      enteredOverallRun = input.totalRun;
+      input.totalRun -= landingTotal;
+      if (!(input.totalRun > 0)) failure('FOOTPRINT');
+    }
     const counts = countCandidates(input, flights);
-    const user = best(counts.map(nr => userCandidate(nr, input, flights)));
-    const recommended = best(counts.map(nr => recommendedCandidate(nr, input, flights)));
+    const decorate = section => {
+      const stairRun = section.totalRun;
+      const overallRun = stairRun + landingTotal;
+      return {
+        ...section,
+        stairRun,
+        totalRun: runMode === 'fixed' ? (enteredOverallRun ?? overallRun) : stairRun,
+        overallRun,
+        overallRatio: overallRun / section.totalRise,
+        overallPercentage: section.totalRise / overallRun * 100,
+        overallAngle: Math.atan2(section.totalRise, overallRun) * 180 / Math.PI
+      };
+    };
+    const user = decorate(best(counts.map(nr => userCandidate(nr, input, flights))));
+    const recommended = decorate(best(counts.map(nr => recommendedCandidate(nr, input, flights))));
     return {
-      input, flights,
+      input, flights, runMode, landingTotal,
       user,
       recommended,
       usesDefaults: !input.riserHeight || !input.treadDepth || (!input.risers && !input.treads && !input.totalRise && !input.totalRun)

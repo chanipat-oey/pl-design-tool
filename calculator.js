@@ -99,7 +99,24 @@
     if (key !== 'ratio' && key !== 'percentage') fail('PAIR');
     return partial(gradient(key, value));
   }
-  const api = {calculate, calculateSlope, parseLength, parseRatio, parsePercentage, pairs};
+  function configured(pair, values, options = {}) {
+    const layoutCalculator = typeof module !== 'undefined' && module.exports ? require('./layout-calculator.js') : root.LayoutCalculator;
+    const enabled = Boolean(options.enabled), runMode = options.runMode === 'fixed' ? 'fixed' : 'extend';
+    if (!enabled) {
+      const section = calculate(pair, values), layout = layoutCalculator.slope(section, {enabled:false});
+      return {...section,rampRun:section.run,layout,...layoutCalculator.overallSlope(section.rise,section.run)};
+    }
+    if (runMode === 'fixed' && pair.split('-').includes('run')) {
+      const layoutBase = layoutCalculator.fixedSlopeRun(parseLength(values.run), options);
+      const section = calculate(pair, {...values,run:layoutBase.rampRun});
+      const layout = layoutCalculator.completeSlope(layoutBase,section);
+      return {...section,run:layout.overallRun,rampRun:layout.rampRun,layout,...layoutCalculator.overallSlope(section.rise,layout.overallRun)};
+    }
+    const section = calculate(pair,values), layout = layoutCalculator.slope(section,options);
+    const displayedRun = runMode === 'fixed' ? layout.overallRun : section.run;
+    return {...section,run:displayedRun,rampRun:section.run,layout:{...layout,runMode},...layoutCalculator.overallSlope(section.rise,layout.overallRun)};
+  }
+  const api = {calculate, configured, calculateSlope, parseLength, parseRatio, parsePercentage, pairs};
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.SlopeCalculator = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
