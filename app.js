@@ -14,7 +14,7 @@ function format(n, digits = 3) {
 function inputDisplay(key, n) {
   if (n === null) return '';
   const number = Number.isFinite(n) ? String(Number(n.toPrecision(9))) : '∞';
-  return key === 'ratio' ? `1:${number}` : number;
+  return number;
 }
 function draw(s) {
   const max = Math.max(s.run, s.rise), nr = s.run / max, nh = s.rise / max;
@@ -66,9 +66,12 @@ function update() {
   } else {
     for (const key of ['percent-result', 'ratio-result', 'angle-result']) $(key).textContent = '—';
     emptyDiagram();
-    $('status').textContent = error ? t('errors')[error] || t('errors').INVALID : t('start');
+    const waiting = error === 'SECOND' && active.length === 1;
+    $('status').textContent = waiting
+      ? `${t('received')} ${t(active[0])} · ${t('nextValue')}`
+      : error ? t('errors')[error] || t('errors').INVALID : t('start');
     const invalid = error && !['MISSING', 'SECOND'].includes(error);
-    $('status').className = invalid ? 'error' : '';
+    $('status').className = invalid ? 'error' : waiting ? 'waiting' : '';
     if (invalid) for (const key of active) $(key).setAttribute('aria-invalid', 'true');
   }
 }

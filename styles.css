@@ -46,3 +46,11 @@ html[lang="th"] .eyebrow, html[lang="th"] .unit-tag, html[lang="th"] .brand span
 .field label small { font-size: 8px; }
 .source-note { color: #426477; font-size: 12px; line-height: 1.8; margin: 0 0 10px; }
 .source-note:empty { display: none; }
+
+/* v4: denominator-only ratio entry and conspicuous one-value guidance. */
+.ratio-wrap { display: flex; align-items: stretch; }
+.ratio-wrap .ratio-prefix { position: static; display: flex; flex: 0 0 48px; align-items: center; justify-content: flex-end; padding: 0 5px 0 10px; color: #365f75; font-size: 22px; font-weight: 600; white-space: nowrap; background: #fff; border: 1px solid #cbd8df; border-right: 0; border-radius: 5px 0 0 5px; }
+.ratio-wrap input { border-left: 0; border-radius: 0 5px 5px 0; padding-left: 8px; }
+.ratio-wrap:has(input[data-calculated="true"]) .ratio-prefix { background: #f0f5f8; }
+#status.waiting { color: #365f75; background: #eaf2f6; border-left: 3px solid #527d94; border-radius: 4px; padding: 11px 12px; font-weight: 600; }
+.input-wrap input::placeholder { color: #a9b8bf; opacity: 1; }
