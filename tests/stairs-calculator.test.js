@@ -7,12 +7,12 @@ test('exposes all eight requested inputs', () => {
   assert.deepEqual(fields, ['risers','treads','totalRise','totalRun','riserHeight','treadDepth','ratio','percentage']);
 });
 
-test('total rise and target riser produce integer steps and a 630 mm option', () => {
-  const output = calculate(['totalRise','riserHeight'], {totalRise:'1', riserHeight:'150'});
+test('total rise and target riser in metres produce integer steps and a 0.630 m option', () => {
+  const output = calculate(['totalRise','riserHeight'], {totalRise:'1', riserHeight:'0.15'});
   assert.equal(output.user.risers, 7);
   close(output.user.totalRise, 1, 0.001);
-  close(output.user.riserHeight, 1000 / 7, 0.02);
-  close(output.recommended.comfort, 630, 0.001);
+  close(output.user.riserHeight, 1 / 7, 0.00002);
+  close(output.recommended.comfort, 0.63, 0.000001);
   assert.equal(output.recommended.treads, 6);
 });
 
@@ -22,15 +22,15 @@ test('total geometry is preserved while the recommended count minimises 2R+T', (
   close(output.user.totalRun, 2.4, 0.001);
   close(output.recommended.totalRise, 1.2, 0.001);
   close(output.recommended.totalRun, 2.4, 0.001);
-  assert.ok(Math.abs(output.recommended.comfort - 630) <= Math.abs(output.user.comfort - 630) + 0.01);
+  assert.ok(Math.abs(output.recommended.comfort - 0.63) <= Math.abs(output.user.comfort - 0.63) + 0.00001);
 });
 
 test('riser count and total rise calculate the actual riser', () => {
   const output = calculate(['risers','totalRise'], {risers:'8', totalRise:'1.2'});
   assert.equal(output.user.risers, 8);
   assert.equal(output.user.treads, 7);
-  close(output.user.riserHeight, 150, 0.001);
-  close(output.recommended.treadDepth, 330, 0.001);
+  close(output.user.riserHeight, 0.15, 0.000001);
+  close(output.recommended.treadDepth, 0.33, 0.000001);
 });
 
 test('ratio entry uses denominator only and drives both ratio outputs', () => {

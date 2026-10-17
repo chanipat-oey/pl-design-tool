@@ -51,12 +51,12 @@
       treads: nt,
       totalRise,
       totalRun,
-      riserHeight: r * 1000,
-      treadDepth: t * 1000,
+      riserHeight: r,
+      treadDepth: t,
       ratio: totalRun / totalRise,
       percentage: totalRise / totalRun * 100,
       angle: Math.atan2(totalRise, totalRun) * 180 / Math.PI,
-      comfort: (2 * r + t) * 1000
+      comfort: 2 * r + t
     };
   }
 
@@ -74,8 +74,8 @@
     ];
     if (input.totalRise) eq.push({a: 1, b: 0, c: Math.log(input.totalRise / nr), w: 1e7});
     if (input.totalRun) eq.push({a: 0, b: 1, c: Math.log(input.totalRun / nt), w: 1e7});
-    if (input.riserHeight) eq.push({a: 1, b: 0, c: Math.log(input.riserHeight / 1000), w: 2e4});
-    if (input.treadDepth) eq.push({a: 0, b: 1, c: Math.log(input.treadDepth / 1000), w: 2e4});
+    if (input.riserHeight) eq.push({a: 1, b: 0, c: Math.log(input.riserHeight), w: 2e4});
+    if (input.treadDepth) eq.push({a: 0, b: 1, c: Math.log(input.treadDepth), w: 2e4});
     const ratio = input.ratio || (input.percentage ? 100 / input.percentage : null);
     if (ratio) eq.push({a: -1, b: 1, c: Math.log(ratio * nr / nt), w: 1e6});
     const solved = solveLinear(eq), r = Math.exp(solved.x), t = Math.exp(solved.y);
@@ -102,17 +102,17 @@
     } else if (hardT) {
       t = hardT; r = (0.63 - t) / 2;
     } else if (input.riserHeight) {
-      r = input.riserHeight / 1000; t = 0.63 - 2 * r;
+      r = input.riserHeight; t = 0.63 - 2 * r;
     } else if (input.treadDepth) {
-      t = input.treadDepth / 1000; r = (0.63 - t) / 2;
+      t = input.treadDepth; r = (0.63 - t) / 2;
     } else {
       r = 0.15; t = 0.33;
     }
     if (!(r > 0.03 && t > 0.05)) return null;
     const data = result(nr, r, t);
-    let score = Math.pow((data.comfort - 630) / 10, 2);
-    if (input.riserHeight) score += Math.pow((data.riserHeight - input.riserHeight) / 10, 2);
-    if (input.treadDepth) score += Math.pow((data.treadDepth - input.treadDepth) / 15, 2);
+    let score = Math.pow((data.comfort - 0.63) / 0.01, 2);
+    if (input.riserHeight) score += Math.pow((data.riserHeight - input.riserHeight) / 0.01, 2);
+    if (input.treadDepth) score += Math.pow((data.treadDepth - input.treadDepth) / 0.015, 2);
     if (input.totalRise) score += Math.pow((data.totalRise - input.totalRise) / 0.001, 2);
     if (input.totalRun) score += Math.pow((data.totalRun - input.totalRun) / 0.001, 2);
     if (ratio) score += Math.pow((data.ratio - ratio) / Math.max(ratio, 0.01) * 100, 2);

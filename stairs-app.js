@@ -22,7 +22,7 @@ function stairEmpty(groupId) {
 }
 
 function stairPath(section, scale) {
-  const x = 72, y = 310, rise = section.riserHeight / 1000 * scale, tread = section.treadDepth / 1000 * scale;
+  const x = 72, y = 310, rise = section.riserHeight * scale, tread = section.treadDepth * scale;
   let path = `M ${x} ${y}`;
   for (let index = 0; index < section.risers; index += 1) {
     path += ` V ${y - (index + 1) * rise}`;
@@ -44,15 +44,15 @@ function drawStair(groupId, section, scale) {
     <path class="dimension" d="M ${endX+10} ${y} H ${riseLabelX} M ${endX+10} ${topY} H ${riseLabelX} M ${riseLabelX-7} ${y} V ${topY}"/>
     <text x="${riseLabelX+15}" y="${(y+topY)/2}" text-anchor="middle" transform="rotate(-90 ${riseLabelX+15} ${(y+topY)/2})">${stairT('totalRiseLabel')} ${stairFormat(section.totalRise,3)} ${stairT('metre')}</text>
     <text class="diagram-label" x="${centreX}" y="${Math.max(28,topY-24)}" text-anchor="middle">${section.risers} ${stairT('risers')} · ${section.treads} ${stairT('treads')}</text>
-    <text x="${centreX}" y="${Math.max(49,topY-4)}" text-anchor="middle">R ${stairFormat(section.riserHeight,1)} · T ${stairFormat(section.treadDepth,1)} ${stairT('millimetre')}</text>
-    <text x="${x}" y="${y+94}">${stairT('comfortLabel')} = ${stairFormat(section.comfort,1)} ${stairT('millimetre')}</text>
+    <text x="${centreX}" y="${Math.max(49,topY-4)}" text-anchor="middle">R ${stairFormat(section.riserHeight,3)} · T ${stairFormat(section.treadDepth,3)} ${stairT('metre')}</text>
+    <text x="${x}" y="${y+94}">${stairT('comfortLabel')} = ${stairFormat(section.comfort,3)} ${stairT('metre')}</text>
     <text x="${endX}" y="${y+94}" text-anchor="end">1:${stairFormat(section.ratio,2)} · ${stairFormat(section.percentage,1)}%</text>`;
 }
 
 function comparisonRows(user, proposal) {
   const rows = [
     ['risers','risers','',0], ['treads','treads','',0], ['totalRise','totalRise',stairT('metre'),3], ['totalRun','totalRun',stairT('metre'),3],
-    ['riserHeight','riserHeight',stairT('millimetre'),1], ['treadDepth','treadDepth',stairT('millimetre'),1], ['comfortLabel','comfort',stairT('millimetre'),1],
+    ['riserHeight','riserHeight',stairT('metre'),3], ['treadDepth','treadDepth',stairT('metre'),3], ['comfortLabel','comfort',stairT('metre'),3],
     ['ratio','ratio','',2], ['percentage','percentage','%',1], ['angle','angle','°',1]
   ];
   return rows.map(([label,key,unit,digits]) => {

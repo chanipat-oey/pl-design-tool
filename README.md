@@ -5,9 +5,9 @@ Static bilingual calculators for landscape design geometry. The project has no b
 ## Tools
 
 - `index.html` — slope calculator using any two compatible values from run, rise, slope length, ratio and percentage.
-- `stairs.html` — stair calculator using the two latest edited values from eight fields. It compares the user's geometry with a separate `2R + T = 630 mm` option using two proportionally matched section drawings.
+- `stairs.html` — stair calculator using the two latest edited values from eight fields. All length inputs and outputs use metres. It compares the user's geometry with a separate `2R + T = 0.630 m` option using two proportionally matched section drawings.
 
-The stair calculator assumes one flight has one fewer tread than risers. Two inputs do not mathematically define every stair dimension, so unspecified values use starting targets of approximately 150 mm riser and 300 mm tread. The interface labels this assumption. The 630 mm result is a design comparison, not a statement of regulatory compliance.
+The stair calculator assumes one flight has one fewer tread than risers. Two inputs do not mathematically define every stair dimension, so unspecified values use starting targets of approximately 0.150 m riser and 0.300 m tread. The interface labels this assumption. The 0.630 m result is a design comparison, not a statement of regulatory compliance.
 
 ## Test locally
 
