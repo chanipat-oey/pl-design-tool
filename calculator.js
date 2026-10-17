@@ -95,7 +95,11 @@
     }
     return complete(run, rise, length);
   }
-  const api = {calculate, parseLength, parseRatio, parsePercentage, pairs};
+  function calculateSlope(key, value) {
+    if (key !== 'ratio' && key !== 'percentage') fail('PAIR');
+    return partial(gradient(key, value));
+  }
+  const api = {calculate, calculateSlope, parseLength, parseRatio, parsePercentage, pairs};
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.SlopeCalculator = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
