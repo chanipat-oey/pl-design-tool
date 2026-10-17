@@ -37,3 +37,12 @@ html[lang="th"] .eyebrow, html[lang="th"] .unit-tag, html[lang="th"] .brand span
 @media (max-width:1000px) { .header-note { display: none; } .workspace { grid-template-columns: 320px minmax(0,1fr); gap:16px; } .results { grid-template-columns:1fr; } .results article { display:grid; grid-template-columns:1fr 1fr; align-items:center; padding:16px 20px; } .results article+article { border-left:0; border-top:1px solid var(--line); } .results article p { margin:0; } .results article small { grid-column:1/-1; margin-top:5px; } .metric { text-align:right; font-size:30px; } }
 @media (max-width:900px) { .workspace { grid-template-columns:1fr; } .fields-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 18px; } .results { grid-template-columns:repeat(3,minmax(0,1fr)); } .results article { display:block; } .results article+article { border-top:0; border-left:1px solid var(--line); } .metric { text-align:left; margin-top:6px; } .drawing .diagram-wrap { min-height:0; } }
 @media (max-width:500px) { header { padding:0 5%; } .brand { font-size:28px; gap:0; } .brand span { display:none; } .header-tools { gap:0; } .fields-grid { grid-template-columns:1fr; } .inputs { padding:20px; } .results { grid-template-columns:1fr; } .results article { display:grid; grid-template-columns:1fr 1fr; } .results article+article { border-left:0; border-top:1px solid var(--line); } .metric { text-align:right; margin:0; } .drawing-footer { flex-wrap:wrap; } .section-heading { flex-wrap:wrap; } }
+
+/* Direct entry: every field stays editable; source values are identified visually. */
+.inputs .hint { margin-top: 0; }
+.input-wrap input[data-source="true"] { border-color: #527d94; box-shadow: inset 3px 0 #527d94; }
+.input-wrap input[data-calculated="true"] { background: #f0f5f8; border-color: #dce6ec; color: #527d94; }
+.field label { flex-wrap: wrap; }
+.field label small { font-size: 8px; }
+.source-note { color: #426477; font-size: 12px; line-height: 1.8; margin: 0 0 10px; }
+.source-note:empty { display: none; }

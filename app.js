@@ -1,7 +1,7 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const fields = ['run', 'rise', 'length', 'ratio', 'percentage'];
-const model = {run: '12', rise: '', length: '', ratio: '1:12', percentage: ''};
+let state = SlopeInputState.create();
 let language = 'th';
 try { if (localStorage.getItem('pld-slope-language') === 'en') language = 'en'; } catch (_) { /* Storage is optional. */ }
 const t = key => SlopeTranslations[language][key];
@@ -45,16 +45,17 @@ function emptyDiagram(partial = false) {
   $('svg-desc').textContent = `${line1}. ${line2}.`;
 }
 function update() {
-  const active = $('pair').value.split('-');
-  $('pair-help').textContent = t($('pair').value === 'ratio-percentage' ? 'slopePairHelp' : 'hint');
+  const {active, values, result: s, error} = state;
   for (const key of fields) {
-    $(key).readOnly = !active.includes(key);
+    const source = active.includes(key);
+    $(key).dataset.source = String(source);
+    $(key).dataset.calculated = String(!source && values[key] !== '');
     $(key).setAttribute('aria-invalid', 'false');
-    $(key+'-tag').textContent = t(active.includes(key) ? 'input' : 'calculated');
+    $(key+'-tag').textContent = source ? t('input') : values[key] !== '' ? t('calculated') : '';
+    if (!source) $(key).value = values[key] === '' ? '' : inputDisplay(key, values[key]);
   }
-  try {
-    const s = SlopeCalculator.calculate($('pair').value, model);
-    for (const key of fields.filter(key => !active.includes(key))) { model[key] = s[key] === null ? '' : s[key]; $(key).value = inputDisplay(key, s[key]); }
+  $('sources').textContent = active.length ? `${t('using')} ${active.map(t).join(' + ')}` : '';
+  if (s) {
     $('percent-result').textContent = `${format(s.percentage)}%`;
     $('ratio-result').textContent = `1 : ${format(s.ratio)}`;
     $('angle-result').textContent = `${format(s.angle)}°`;
@@ -62,37 +63,23 @@ function update() {
     $('status').className = partial ? 'notice' : '';
     $('status').textContent = t(partial ? 'needsDistance' : s.rise === 0 ? 'level' : s.run === 0 ? 'vertical' : 'ready');
     if (partial) emptyDiagram(true); else draw(s);
-  } catch (error) {
-    for (const key of fields.filter(key => !active.includes(key))) { model[key] = ''; $(key).value = ''; }
+  } else {
     for (const key of ['percent-result', 'ratio-result', 'angle-result']) $(key).textContent = '—';
     emptyDiagram();
-    $('status').textContent = SlopeTranslations[language].errors[error.code] || t('errors').INVALID;
-    $('status').className = error.code === 'MISSING' ? '' : 'error';
-    for (const key of active) $(key).setAttribute('aria-invalid', error.code === 'MISSING' && String(model[key]).trim() !== '' ? 'false' : 'true');
+    $('status').textContent = error ? t('errors')[error] || t('errors').INVALID : t('start');
+    const invalid = error && !['MISSING', 'SECOND'].includes(error);
+    $('status').className = invalid ? 'error' : '';
+    if (invalid) for (const key of active) $(key).setAttribute('aria-invalid', 'true');
   }
 }
 function setLanguage(next) {
   language = next; document.documentElement.lang = next;
   for (const node of document.querySelectorAll('[data-i18n]')) node.textContent = t(node.dataset.i18n);
   for (const button of document.querySelectorAll('[data-language]')) button.setAttribute('aria-pressed', String(button.dataset.language === next));
-  const selected = $('pair').value || 'run-ratio';
-  $('pair').replaceChildren(...SlopeCalculator.pairs.map(pair => {
-    const option = document.createElement('option'); option.value = pair;
-    option.textContent = pair.split('-').map(t).join(' + '); return option;
-  }));
-  $('pair').value = selected;
   try { localStorage.setItem('pld-slope-language', next); } catch (_) { /* Works without storage. */ }
   update();
 }
-for (const key of fields) $(key).addEventListener('input', () => { model[key] = $(key).value; update(); });
-$('pair').addEventListener('change', () => {
-  // Promote full precision, not rounded display values, when changing input pairs.
-  for (const key of $('pair').value.split('-')) {
-    const raw = model[key];
-    $(key).value = typeof raw === 'number' ? (key === 'ratio' ? `1:${raw === Infinity ? '∞' : raw}` : raw === Infinity ? '∞' : String(raw)) : raw;
-  }
-  update();
-});
-$('reset').addEventListener('click', () => { for (const key of fields) { model[key] = ''; $(key).value = ''; } update(); $($('pair').value.split('-')[0]).focus(); });
+for (const key of fields) $(key).addEventListener('input', () => { state = SlopeInputState.edit(state, key, $(key).value); update(); });
+$('reset').addEventListener('click', () => { state = SlopeInputState.create(); update(); $('run').focus(); });
 for (const button of document.querySelectorAll('[data-language]')) button.addEventListener('click', () => setLanguage(button.dataset.language));
 setLanguage(language);
