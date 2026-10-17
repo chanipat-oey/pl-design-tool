@@ -4,10 +4,12 @@ Static bilingual calculators for landscape design geometry. The project has no b
 
 ## Tools
 
-- `index.html` — slope calculator using any two compatible values from run, rise, slope length, ratio and percentage.
-- `stairs.html` — stair calculator using the two latest edited values from eight fields. All length inputs and outputs use metres. It compares the user's geometry with a separate `2R + T = 0.630 m` option using two proportionally matched section drawings.
+- `index.html` — slope calculator using any two compatible values from run, rise, slope length, ratio and percentage. Optional start/end levels can replace the rise. Optional landings divide the ramp into equal flights using a user-defined maximum horizontal run; landing lengths may be uniform or entered separately.
+- `stairs.html` — stair calculator using the two latest edited values from eight fields. Optional start/end levels can replace total rise. Optional landings divide risers as evenly as possible between a user-defined number of flights, with uniform or individually entered landing lengths. All length inputs and outputs use metres. It compares the user's geometry with a separate `2R + T = 0.630 m` option using two proportionally matched section drawings.
 
-The stair calculator assumes one flight has one fewer tread than risers. Two inputs do not mathematically define every stair dimension, so unspecified values use starting targets of approximately 0.150 m riser and 0.300 m tread. The interface labels this assumption. The 0.630 m result is a design comparison, not a statement of regulatory compliance.
+For stairs, total tread count equals riser count minus the number of flights; intermediate landings are measured separately. Two primary inputs do not mathematically define every stair dimension, so unspecified values use starting targets of approximately 0.150 m riser and 0.300 m tread. The interface labels this assumption. The 0.630 m result is a design comparison, not a statement of regulatory compliance.
+
+Levels accept positive, zero and negative project datums. Lengths remain non-negative. Landing controls are optional configuration and do not count as either of the two primary geometry inputs.
 
 ## Test locally
 

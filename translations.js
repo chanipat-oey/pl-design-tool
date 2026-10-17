@@ -9,6 +9,8 @@
       using: 'ยึดค่า:', start: 'เริ่มกรอก 2 ค่า โดยอย่างน้อยหนึ่งค่าเป็นระยะ',
       run: 'ระยะทางยาว (แนวราบ)', rise: 'ระยะทางสูง', length: 'ระยะทางเอียง', ratio: 'ความลาดชัน 1:XX', percentage: 'ความลาดชันเป็น %',
       ratioHelp: 'กรอกเฉพาะเลข XX เช่น 12', percentageHelp: 'กรอกตัวเลข เช่น 5', metre: 'ม.',
+      levelsTitle:'ค่าระดับ', optional:'ไม่บังคับ', levelsHelp:'กรอกระดับต้นและปลายแทนระยะสูงได้ หรือกรอกระดับเดียวเพื่อคำนวณอีกระดับ', startLevel:'ระดับเริ่มต้น', endLevel:'ระดับปลายทาง', descending:'ปลายทางลดระดับจากจุดเริ่มต้น', levelFromPair:'ใช้ระดับต้น–ปลายคำนวณระยะสูง', levelCalculated:'คำนวณระดับที่เหลือจากความต่างระดับ',
+      landingsTitle:'ชานพักทางลาด', useLandings:'ใส่ชานพัก', maximumRun:'ระยะทางนอนสูงสุดต่อช่วง', equalLandings:'ชานพักทุกแห่งยาวเท่ากัน', landingLength:'ความยาวชานพัก', landingNumber:'ชานพักที่', layoutReady:'แบ่งทางลาดเท่ากันทุกช่วงแล้ว', noLandingNeeded:'ระยะทางนอนไม่เกินค่าสูงสุด จึงยังไม่ต้องมีชานพัก', flights:'จำนวนช่วง', landings:'จำนวนชานพัก', perFlightRun:'ระยะทางนอนต่อช่วง', overallFootprint:'ระยะทางนอนรวมชานพัก',
       received: 'รับค่าแล้ว 1 ค่า:', nextValue: 'กรอกอีก 1 ช่องเพื่อให้คำนวณและวาดรูปตัด',
       reset: 'ล้างค่า', section: 'รูปตัดความลาดชัน', live: 'ปรับตามข้อมูล', sectionCode: 'รูปตัด A–A', scale: 'สัดส่วนจริง · ระยะเป็นเมตร',
       percentFormula: 'ระยะสูง ÷ ระยะราบ × 100', ratioFormula: 'แนวตั้ง : แนวราบ', angle: 'มุมเอียง', angleFormula: 'วัดจากแนวราบ',
@@ -26,7 +28,8 @@
         RATIO: 'กรุณากรอกอัตราส่วนแบบ 1:12 หรือกรอกเฉพาะ 12', GEOMETRY: 'ระยะเอียงต้องไม่น้อยกว่าระยะราบหรือระยะสูงที่ทราบ',
         ZERO: 'ระยะอย่างน้อยหนึ่งค่าต้องมากกว่า 0 จุดที่ไม่มีความยาวไม่สามารถระบุความลาดชันได้', RANGE: 'ค่าที่กรอกเกินช่วงความละเอียดที่เครื่องคำนวณรองรับ',
         PAIR: 'กรุณาเลือกคู่ข้อมูลที่ถูกต้อง', CONFLICT: 'อัตราส่วนกับเปอร์เซ็นต์ไม่ตรงกัน เช่น 1:20 ต้องเท่ากับ 5% และยังต้องมีระยะเพื่อระบุขนาดจริง',
-        LEVEL: 'พื้นราบที่มีความลาดชัน 0% ต้องมีระยะสูงเท่ากับ 0', VERTICAL: 'แนวดิ่งที่มีอัตราส่วน 1:0 ต้องมีระยะราบเท่ากับ 0'
+        LEVEL: 'พื้นราบที่มีความลาดชัน 0% ต้องมีระยะสูงเท่ากับ 0', VERTICAL: 'แนวดิ่งที่มีอัตราส่วน 1:0 ต้องมีระยะราบเท่ากับ 0',
+        LEVEL_INVALID:'กรุณากรอกค่าระดับเป็นตัวเลข เช่น +10.250 หรือ -0.500', MAX_RUN:'กรุณากรอกระยะทางนอนสูงสุดต่อช่วงที่มากกว่า 0', LANDING:'กรุณากรอกความยาวชานพักทุกแห่งให้มากกว่า 0'
       }
     },
     en: {
@@ -37,6 +40,8 @@
       using: 'Using:', start: 'Enter two values, including at least one length.',
       run: 'Horizontal Run', rise: 'Vertical Rise', length: 'Slope Length', ratio: 'Slope Ratio 1:N', percentage: 'Slope Percentage',
       ratioHelp: 'Enter XX only, for example 12', percentageHelp: 'Enter a number, for example 5', metre: 'm',
+      levelsTitle:'Levels', optional:'OPTIONAL', levelsHelp:'Enter both levels instead of the rise, or enter one level to calculate the other.', startLevel:'Start Level', endLevel:'End Level', descending:'End level is below the start level', levelFromPair:'Rise calculated from start and end levels', levelCalculated:'Remaining level calculated from the rise',
+      landingsTitle:'Slope landings', useLandings:'Include landings', maximumRun:'Maximum horizontal run per flight', equalLandings:'All landings have the same length', landingLength:'Landing length', landingNumber:'Landing', layoutReady:'Slope flights divided equally', noLandingNeeded:'The run does not exceed the maximum, so no landing is required.', flights:'Flights', landings:'Landings', perFlightRun:'Run per flight', overallFootprint:'Overall run incl. landings',
       received: '1 value received:', nextValue: 'enter one more field to calculate and draw the section',
       reset: 'Reset', section: 'Slope section', live: 'LIVE GEOMETRY', sectionCode: 'SECTION A–A', scale: 'True proportions · dimensions in m',
       percentFormula: 'Rise / Run × 100', ratioFormula: 'Vertical : Horizontal', angle: 'Inclination Angle', angleFormula: 'Measured from the horizontal',
@@ -54,7 +59,8 @@
         RATIO: 'Enter a ratio such as 1:12 or its denominator 12.', GEOMETRY: 'Slope Length must be at least as long as the known Run or Rise.',
         ZERO: 'At least one length must be greater than zero. A zero-length point has no slope.', RANGE: 'These values exceed the supported numeric range.',
         PAIR: 'Choose a valid pair of inputs.', CONFLICT: 'Ratio and percentage do not match: for example, 1:20 equals 5%. A length is also needed to determine the section size.',
-        LEVEL: 'A level surface (0% slope) must have zero rise.', VERTICAL: 'A vertical section (1:0) must have zero run.'
+        LEVEL: 'A level surface (0% slope) must have zero rise.', VERTICAL: 'A vertical section (1:0) must have zero run.',
+        LEVEL_INVALID:'Enter a valid level such as +10.250 or -0.500.', MAX_RUN:'Enter a maximum run per flight greater than zero.', LANDING:'Enter a positive length for every landing.'
       }
     }
   };

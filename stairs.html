@@ -4,11 +4,11 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="PLD Stair Calculator — compare user stair geometry with a 2R+T=0.630 m option. Thai and English.">
   <title>PLD Stair Calculator</title>
-  <link rel="stylesheet" href="styles.css?v=7"><link rel="stylesheet" href="stairs.css?v=7">
-  <script defer src="stairs-calculator.js?v=7"></script><script defer src="stairs-state.js?v=7"></script><script defer src="stairs-translations.js?v=7"></script><script defer src="stairs-app.js?v=7"></script>
+  <link rel="stylesheet" href="styles.css?v=8"><link rel="stylesheet" href="stairs.css?v=8">
+  <script defer src="stairs-calculator.js?v=8"></script><script defer src="stairs-state.js?v=8"></script><script defer src="level-calculator.js?v=8"></script><script defer src="layout-calculator.js?v=8"></script><script defer src="stairs-translations.js?v=8"></script><script defer src="stairs-app.js?v=8"></script>
 </head>
 <body>
-  <header><a class="brand" href="./" aria-label="PLD Design Tools">PLD<span data-i18n="brand">เครื่องมือออกแบบ</span></a><div class="header-tools"><nav class="tool-nav" aria-label="Design tools"><a href="./" data-i18n="slopeTool">ความลาดชัน</a><a href="stairs.html?v=7" aria-current="page" data-i18n="stairTool">บันได</a></nav><span class="header-note" data-i18n="header">ภูมิสถาปัตยกรรม / เรขาคณิต</span><div class="language-switch" role="group" aria-label="ภาษา / Language"><button type="button" data-language="th" aria-pressed="true">ไทย</button><button type="button" data-language="en" aria-pressed="false">English</button></div></div></header>
+  <header><a class="brand" href="./" aria-label="PLD Design Tools">PLD<span data-i18n="brand">เครื่องมือออกแบบ</span></a><div class="header-tools"><nav class="tool-nav" aria-label="Design tools"><a href="./" data-i18n="slopeTool">ความลาดชัน</a><a href="stairs.html?v=8" aria-current="page" data-i18n="stairTool">บันได</a></nav><span class="header-note" data-i18n="header">ภูมิสถาปัตยกรรม / เรขาคณิต</span><div class="language-switch" role="group" aria-label="ภาษา / Language"><button type="button" data-language="th" aria-pressed="true">ไทย</button><button type="button" data-language="en" aria-pressed="false">English</button></div></div></header>
   <main class="stairs-main">
     <div class="intro"><p class="eyebrow" data-i18n="eyebrow">02 / คำนวณบันได</p><h1>PLD Stair Calculator<span class="dot">.</span></h1><p data-i18n="intro">กรอก 2 ค่า ตัวเลขและรูปตัดทั้งสองแบบจะปรับทันที</p></div>
     <div class="stair-workspace">
@@ -25,6 +25,27 @@
           <div class="field"><label for="ratio"><span data-i18n="ratio">ความลาดชัน 1:XX</span><small id="ratio-tag"></small></label><div class="input-wrap ratio-wrap"><span class="ratio-prefix">1 :</span><input id="ratio" inputmode="decimal" autocomplete="off" placeholder="2" aria-label="XX"></div><p class="field-help" data-i18n="ratioHelp">กรอกเฉพาะเลข XX เช่น 2</p></div>
           <div class="field"><label for="percentage"><span data-i18n="percentage">ความลาดชันเป็น %</span><small id="percentage-tag"></small></label><div class="input-wrap"><input id="percentage" inputmode="decimal" autocomplete="off" placeholder="50"><span>%</span></div><p class="field-help" data-i18n="percentHelp">กรอกเฉพาะตัวเลข เช่น 50</p></div>
         </div>
+        <section class="config-block" aria-labelledby="stair-level-title">
+          <div class="config-heading"><h3 id="stair-level-title" data-i18n="levelsTitle">ค่าระดับ</h3><span data-i18n="optional">ไม่บังคับ</span></div>
+          <p data-i18n="levelsHelp">กรอกระดับต้นและปลายแทนความต่างระดับรวมได้ หรือกรอกระดับเดียวเพื่อคำนวณอีกระดับ</p>
+          <div class="settings-grid">
+            <div class="field"><label for="stair-start-level"><span data-i18n="startLevel">ระดับเริ่มต้น</span><small id="stair-start-level-tag"></small></label><div class="input-wrap"><input id="stair-start-level" inputmode="decimal" autocomplete="off" placeholder="+10.250"><span data-i18n="metre">ม.</span></div></div>
+            <div class="field"><label for="stair-end-level"><span data-i18n="endLevel">ระดับปลายทาง</span><small id="stair-end-level-tag"></small></label><div class="input-wrap"><input id="stair-end-level" inputmode="decimal" autocomplete="off" placeholder="+11.250"><span data-i18n="metre">ม.</span></div></div>
+          </div>
+          <label class="check-row"><input id="stair-descending" type="checkbox"><span data-i18n="descending">ปลายทางลดระดับจากจุดเริ่มต้น</span></label>
+          <p id="stair-level-status" class="config-status" aria-live="polite"></p>
+        </section>
+        <section class="config-block" aria-labelledby="stair-landing-title">
+          <div class="config-heading"><h3 id="stair-landing-title" data-i18n="landingsTitle">ชานพักบันได</h3><span data-i18n="optional">ไม่บังคับ</span></div>
+          <label class="check-row primary-check"><input id="use-stair-landings" type="checkbox"><span data-i18n="useLandings">ใส่ชานพัก</span></label>
+          <div id="stair-landing-options" class="conditional" hidden>
+            <div class="field"><label for="stair-flights"><span data-i18n="flightCount">จำนวนช่วงบันได</span></label><div class="input-wrap"><input id="stair-flights" inputmode="numeric" autocomplete="off" placeholder="2"><span data-i18n="flightsUnit">ช่วง</span></div></div>
+            <label class="check-row"><input id="equal-stair-landings" type="checkbox" checked><span data-i18n="equalLandings">ชานพักทุกแห่งยาวเท่ากัน</span></label>
+            <div id="stair-shared-landing" class="field"><label for="stair-landing-length"><span data-i18n="landingLength">ความยาวชานพัก</span></label><div class="input-wrap"><input id="stair-landing-length" inputmode="decimal" autocomplete="off" placeholder="1.20"><span data-i18n="metre">ม.</span></div></div>
+            <div id="stair-individual-landings" class="individual-landings"></div>
+            <p id="stair-layout-status" class="config-status" aria-live="polite"></p>
+          </div>
+        </section>
         <p id="stair-sources" class="source-note" aria-live="polite"></p><p id="stair-status" role="status" aria-live="polite"></p><p id="assumption-note" class="assumption-note"></p>
         <button id="stair-reset" type="button"><span aria-hidden="true">↺</span> <span data-i18n="reset">ล้างค่า</span></button>
       </section>
@@ -37,6 +58,7 @@
           </div>
         </section>
         <section class="panel comparison-table-wrap" aria-labelledby="compare-table-title"><h2 id="compare-table-title" data-i18n="compareTitle">เปรียบเทียบตัวเลข</h2><div class="table-scroll"><table><thead><tr><th data-i18n="item">รายการ</th><th data-i18n="current">ตามค่าของเอย</th><th data-i18n="suggested">ข้อเสนอ 0.630 ม.</th><th data-i18n="difference">ผลต่าง</th></tr></thead><tbody id="comparison-body"></tbody></table></div></section>
+        <section id="stair-layout-summary" class="layout-summary" hidden aria-live="polite"></section>
         <aside class="method-note"><strong data-i18n="noteTitle">หลักการคำนวณ</strong><p data-i18n="note">จำนวนลูกนอนเท่ากับจำนวนลูกตั้งลบหนึ่ง ค่าที่กรอกยังคงเป็นค่าตั้งต้น ส่วนสูตร 0.630 ม. แสดงเป็นข้อเสนอแยกต่างหากและไม่รับรองการผ่านข้อกำหนดโครงการ</p></aside>
       </div>
     </div>

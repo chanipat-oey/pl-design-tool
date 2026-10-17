@@ -2,3 +2,5 @@
 @media(max-width:1160px){.stair-workspace{grid-template-columns:360px minmax(0,1fr)}.diagram-grid{grid-template-columns:1fr}.diagram-title small{min-height:0}.diagram-card svg{max-height:390px}.stair-fields{grid-template-columns:1fr}}
 @media(max-width:900px){.stair-workspace{grid-template-columns:1fr}.stair-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.diagram-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.diagram-grid{grid-template-columns:1fr}.comparison{padding:16px}.stair-fields{grid-template-columns:1fr}.stair-fields .field label{min-height:0}.comparison-table-wrap{padding:18px 14px}.diagram-card svg{max-height:none}}
+
+.stair-inputs .config-block{margin-top:20px}.stair-inputs .settings-grid .field label{min-height:0}.diagram-card .landing-line{stroke:var(--theme-accent);stroke-width:2.6}.proposal-diagram .landing-line{stroke:#7c9489}.diagram-card .level-line{stroke:var(--theme-line);stroke-width:1;stroke-dasharray:4 5}.diagram-card .level-text{font-size:11px!important}.diagram-card .segment-text{font-size:10px!important}.stair-visuals .layout-summary{margin-top:18px}
