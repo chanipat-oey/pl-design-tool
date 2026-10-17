@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A precise, visual slope calculator for landscape architects. Calculate rise, run, slope length, gradient and angle.">
+  <title>PLD Slope Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="calculator.js"></script><script defer src="app.js"></script>
+</head>
+<body>
+  <header><a class="brand" href="./" aria-label="PLD Slope Calculator home">PLD<span>DESIGN TOOLS</span></a><span class="header-note">LANDSCAPE / GEOMETRY</span></header>
+  <main>
+    <div class="intro"><p class="eyebrow">01 / SITE GEOMETRY</p><h1>PLD Slope Calculator<span class="dot">.</span></h1><p>From levels to gradients. Enter two dimensions to understand your slope.</p></div>
+    <div class="workspace">
+      <section class="panel inputs" aria-labelledby="dimensions-title">
+        <div class="section-heading"><h2 id="dimensions-title">Dimensions</h2><span class="unit-tag">METRES</span></div>
+        <label class="select-label" for="pair">Known dimensions</label>
+        <select id="pair"><option value="run-rise">Horizontal Run + Vertical Rise</option><option value="run-length">Horizontal Run + Slope Length</option><option value="rise-length">Vertical Rise + Slope Length</option></select>
+        <p class="hint">Enter two values. The third is calculated.</p>
+        <div class="field" id="run-field"><label for="run">Horizontal Run <span id="run-tag">INPUT</span></label><div class="input-wrap"><input id="run" type="number" min="0" step="any" value="10" inputmode="decimal" aria-describedby="status"><span>m</span></div></div>
+        <div class="field" id="rise-field"><label for="rise">Vertical Rise <span id="rise-tag">INPUT</span></label><div class="input-wrap"><input id="rise" type="number" min="0" step="any" value="0.5" inputmode="decimal" aria-describedby="status"><span>m</span></div></div>
+        <div class="field" id="length-field"><label for="length">Slope Length <span id="length-tag">CALCULATED</span></label><div class="input-wrap"><input id="length" type="number" min="0" step="any" readonly aria-describedby="status"><span>m</span></div></div>
+        <p id="status" role="status" aria-live="polite"></p>
+        <button id="reset" type="button"><span aria-hidden="true">↺</span> Reset</button>
+      </section>
+      <section class="panel drawing" aria-labelledby="section-title">
+        <div class="section-heading"><h2 id="section-title">Slope section</h2><span class="live-tag"><i></i> LIVE GEOMETRY</span></div>
+        <div class="diagram-wrap"><svg id="diagram" viewBox="0 0 720 420" role="img" aria-labelledby="svg-title svg-desc" preserveAspectRatio="xMidYMid meet"><title id="svg-title">Slope side section</title><desc id="svg-desc"></desc><defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M 24 0 L 0 0 0 24" fill="none" stroke="#e7edf0" stroke-width="0.6"/></pattern></defs><rect width="720" height="420" fill="url(#grid)"/><g id="geometry"></g></svg></div>
+        <div class="drawing-footer"><span>SECTION A–A</span><span>True proportions · dimensions in m</span></div>
+      </section>
+    </div>
+    <section class="results" aria-label="Calculated slope metrics" aria-live="polite">
+      <article><p>SLOPE PERCENTAGE</p><div id="percent" class="metric">—</div><small>Vertical Rise / Horizontal Run × 100</small></article>
+      <article><p>SLOPE RATIO</p><div id="ratio" class="metric">—</div><small>Vertical : Horizontal · 1 : N</small></article>
+      <article><p>INCLINATION ANGLE</p><div id="angle" class="metric">—</div><small>Measured from the horizontal</small></article>
+    </section>
+    <footer><span>PL DESIGN <b>/</b> Landscape architecture tools</span><span>Geometry only · Check project requirements separately.</span></footer>
+  </main>
+</body>
+</html>
