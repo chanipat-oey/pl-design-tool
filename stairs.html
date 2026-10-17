@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PLD Stair Calculator — compare user stair geometry with a 2R+T=630 mm option. Thai and English.">
+  <title>PLD Stair Calculator</title>
+  <link rel="stylesheet" href="styles.css?v=6"><link rel="stylesheet" href="stairs.css?v=6">
+  <script defer src="stairs-calculator.js?v=6"></script><script defer src="stairs-state.js?v=6"></script><script defer src="stairs-translations.js?v=6"></script><script defer src="stairs-app.js?v=6"></script>
+</head>
+<body>
+  <header><a class="brand" href="./" aria-label="PLD Design Tools">PLD<span data-i18n="brand">เครื่องมือออกแบบ</span></a><div class="header-tools"><nav class="tool-nav" aria-label="Design tools"><a href="./" data-i18n="slopeTool">ความลาดชัน</a><a href="stairs.html" aria-current="page" data-i18n="stairTool">บันได</a></nav><span class="header-note" data-i18n="header">ภูมิสถาปัตยกรรม / เรขาคณิต</span><div class="language-switch" role="group" aria-label="ภาษา / Language"><button type="button" data-language="th" aria-pressed="true">ไทย</button><button type="button" data-language="en" aria-pressed="false">English</button></div></div></header>
+  <main class="stairs-main">
+    <div class="intro"><p class="eyebrow" data-i18n="eyebrow">02 / คำนวณบันได</p><h1>PLD Stair Calculator<span class="dot">.</span></h1><p data-i18n="intro">กรอก 2 ค่า ตัวเลขและรูปตัดทั้งสองแบบจะปรับทันที</p></div>
+    <div class="stair-workspace">
+      <section class="panel inputs stair-inputs" aria-labelledby="inputs-title">
+        <div class="section-heading"><h2 id="inputs-title" data-i18n="inputsTitle">ข้อมูลบันได</h2><span class="unit-tag" data-i18n="units">จำนวน / ม. / มม. / %</span></div>
+        <p class="hint" data-i18n="hint">พิมพ์ได้ทุกช่อง ระบบใช้ 2 ค่าที่แก้ล่าสุดเป็นค่าตั้งต้น</p>
+        <div class="stair-fields">
+          <div class="field"><label for="risers"><span data-i18n="risers">จำนวนลูกตั้ง</span><small id="risers-tag"></small></label><div class="input-wrap"><input id="risers" inputmode="numeric" autocomplete="off" placeholder="7"><span data-i18n="count">ขั้น</span></div></div>
+          <div class="field"><label for="treads"><span data-i18n="treads">จำนวนลูกนอน</span><small id="treads-tag"></small></label><div class="input-wrap"><input id="treads" inputmode="numeric" autocomplete="off" placeholder="6"><span data-i18n="count">ขั้น</span></div></div>
+          <div class="field"><label for="totalRise"><span data-i18n="totalRise">ความต่างระดับรวม</span><small id="totalRise-tag"></small></label><div class="input-wrap"><input id="totalRise" inputmode="decimal" autocomplete="off" placeholder="1.00"><span data-i18n="metre">ม.</span></div></div>
+          <div class="field"><label for="totalRun"><span data-i18n="totalRun">ระยะทางนอนรวม</span><small id="totalRun-tag"></small></label><div class="input-wrap"><input id="totalRun" inputmode="decimal" autocomplete="off" placeholder="1.80"><span data-i18n="metre">ม.</span></div></div>
+          <div class="field"><label for="riserHeight"><span data-i18n="riserHeight">ความสูงลูกตั้งที่ต้องการ</span><small id="riserHeight-tag"></small></label><div class="input-wrap"><input id="riserHeight" inputmode="decimal" autocomplete="off" placeholder="150"><span data-i18n="millimetre">มม.</span></div></div>
+          <div class="field"><label for="treadDepth"><span data-i18n="treadDepth">ความลึกลูกนอนที่ต้องการ</span><small id="treadDepth-tag"></small></label><div class="input-wrap"><input id="treadDepth" inputmode="decimal" autocomplete="off" placeholder="300"><span data-i18n="millimetre">มม.</span></div></div>
+          <div class="field"><label for="ratio"><span data-i18n="ratio">ความลาดชัน 1:XX</span><small id="ratio-tag"></small></label><div class="input-wrap ratio-wrap"><span class="ratio-prefix">1 :</span><input id="ratio" inputmode="decimal" autocomplete="off" placeholder="2" aria-label="XX"></div><p class="field-help" data-i18n="ratioHelp">กรอกเฉพาะเลข XX เช่น 2</p></div>
+          <div class="field"><label for="percentage"><span data-i18n="percentage">ความลาดชันเป็น %</span><small id="percentage-tag"></small></label><div class="input-wrap"><input id="percentage" inputmode="decimal" autocomplete="off" placeholder="50"><span>%</span></div><p class="field-help" data-i18n="percentHelp">กรอกเฉพาะตัวเลข เช่น 50</p></div>
+        </div>
+        <p id="stair-sources" class="source-note" aria-live="polite"></p><p id="stair-status" role="status" aria-live="polite"></p><p id="assumption-note" class="assumption-note"></p>
+        <button id="stair-reset" type="button"><span aria-hidden="true">↺</span> <span data-i18n="reset">ล้างค่า</span></button>
+      </section>
+      <div class="stair-visuals">
+        <section class="panel comparison" aria-labelledby="comparison-title">
+          <div class="section-heading comparison-heading"><div><h2 id="comparison-title" data-i18n="comparison">เปรียบเทียบรูปตัดบันได</h2><p data-i18n="sameScale">มาตราส่วนเดียวกันทั้ง 2 ภาพ</p></div><span class="live-tag"><i></i><span>LIVE</span></span></div>
+          <div class="diagram-grid">
+            <article class="diagram-card user-diagram"><div class="diagram-title"><strong data-i18n="yourResult">ผลลัพธ์ตามค่าของเอย</strong><small data-i18n="yourCaption">ใช้ค่าที่กรอกและแสดงค่าที่ก่อสร้างได้จริง</small></div><svg id="user-diagram" viewBox="0 0 720 420" role="img"><defs><pattern id="user-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24"/></pattern></defs><rect width="720" height="420" fill="url(#user-grid)"/><g id="user-geometry"></g></svg><footer class="diagram-footer" data-i18n="sectionA">รูปตัด A — ค่าที่กรอก</footer></article>
+            <article class="diagram-card proposal-diagram"><div class="diagram-title"><strong data-i18n="proposal">ข้อเสนอ 2R+T=630 มม.</strong><small data-i18n="proposalCaption">รักษาข้อมูลหลักและปรับสัดส่วนขั้นเพื่อเปรียบเทียบ</small></div><svg id="proposal-diagram" viewBox="0 0 720 420" role="img"><defs><pattern id="proposal-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24"/></pattern></defs><rect width="720" height="420" fill="url(#proposal-grid)"/><g id="proposal-geometry"></g></svg><footer class="diagram-footer" data-i18n="sectionB">รูปตัด B — สูตร 630</footer></article>
+          </div>
+        </section>
+        <section class="panel comparison-table-wrap" aria-labelledby="compare-table-title"><h2 id="compare-table-title" data-i18n="compareTitle">เปรียบเทียบตัวเลข</h2><div class="table-scroll"><table><thead><tr><th data-i18n="item">รายการ</th><th data-i18n="current">ตามค่าของเอย</th><th data-i18n="suggested">ข้อเสนอ 630</th><th data-i18n="difference">ผลต่าง</th></tr></thead><tbody id="comparison-body"></tbody></table></div></section>
+        <aside class="method-note"><strong data-i18n="noteTitle">หลักการคำนวณ</strong><p data-i18n="note">จำนวนลูกนอนเท่ากับจำนวนลูกตั้งลบหนึ่ง ค่าที่กรอกยังคงเป็นค่าตั้งต้น ส่วนสูตร 630 มม. แสดงเป็นข้อเสนอแยกต่างหากและไม่รับรองการผ่านข้อกำหนดโครงการ</p></aside>
+      </div>
+    </div>
+    <footer><span>PL DESIGN <b>/</b> <span data-i18n="footer">เครื่องมือสำหรับภูมิสถาปนิก</span></span><span data-i18n="scope">คำนวณเรขาคณิต · ตรวจสอบกฎหมาย การเข้าถึง ชานพัก และราวจับแยกต่างหาก</span></footer>
+  </main>
+</body>
+</html>
