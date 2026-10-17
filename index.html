@@ -1,40 +1,48 @@
 <!doctype html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A precise, visual slope calculator for landscape architects. Calculate rise, run, slope length, gradient and angle.">
+  <meta name="description" content="PLD Slope Calculator — landscape slope geometry from lengths, ratio or percentage. Thai and English.">
   <title>PLD Slope Calculator</title>
   <link rel="stylesheet" href="styles.css">
-  <script defer src="calculator.js"></script><script defer src="app.js"></script>
+  <script defer src="calculator.js"></script><script defer src="translations.js"></script><script defer src="app.js"></script>
 </head>
 <body>
-  <header><a class="brand" href="./" aria-label="PLD Slope Calculator home">PLD<span>DESIGN TOOLS</span></a><span class="header-note">LANDSCAPE / GEOMETRY</span></header>
+  <header><a class="brand" href="./" aria-label="PLD Slope Calculator">PLD<span data-i18n="brand">เครื่องมือออกแบบ</span></a><div class="header-tools"><span class="header-note" data-i18n="header">ภูมิสถาปัตยกรรม / เรขาคณิต</span><div class="language-switch" role="group" aria-label="ภาษา / Language"><button type="button" data-language="th" aria-pressed="true" lang="th">ไทย</button><button type="button" data-language="en" aria-pressed="false" lang="en">English</button></div></div></header>
   <main>
-    <div class="intro"><p class="eyebrow">01 / SITE GEOMETRY</p><h1>PLD Slope Calculator<span class="dot">.</span></h1><p>From levels to gradients. Enter two dimensions to understand your slope.</p></div>
+    <div class="intro"><p class="eyebrow" data-i18n="eyebrow">01 / คำนวณความลาดชัน</p><h1>PLD Slope Calculator<span class="dot">.</span></h1><p data-i18n="intro">เลือกข้อมูลที่ทราบ 2 ค่าจาก 5 รายการ แล้วคำนวณค่าที่เหลืออัตโนมัติ</p></div>
     <div class="workspace">
       <section class="panel inputs" aria-labelledby="dimensions-title">
-        <div class="section-heading"><h2 id="dimensions-title">Dimensions</h2><span class="unit-tag">METRES</span></div>
-        <label class="select-label" for="pair">Known dimensions</label>
-        <select id="pair"><option value="run-rise">Horizontal Run + Vertical Rise</option><option value="run-length">Horizontal Run + Slope Length</option><option value="rise-length">Vertical Rise + Slope Length</option></select>
-        <p class="hint">Enter two values. The third is calculated.</p>
-        <div class="field" id="run-field"><label for="run">Horizontal Run <span id="run-tag">INPUT</span></label><div class="input-wrap"><input id="run" type="number" min="0" step="any" value="10" inputmode="decimal" aria-describedby="status"><span>m</span></div></div>
-        <div class="field" id="rise-field"><label for="rise">Vertical Rise <span id="rise-tag">INPUT</span></label><div class="input-wrap"><input id="rise" type="number" min="0" step="any" value="0.5" inputmode="decimal" aria-describedby="status"><span>m</span></div></div>
-        <div class="field" id="length-field"><label for="length">Slope Length <span id="length-tag">CALCULATED</span></label><div class="input-wrap"><input id="length" type="number" min="0" step="any" readonly aria-describedby="status"><span>m</span></div></div>
+        <div class="section-heading"><h2 id="dimensions-title" data-i18n="dimensions">ข้อมูลความลาดชัน</h2><span class="unit-tag" data-i18n="units">เมตร / อัตราส่วน / %</span></div>
+        <label class="select-label" for="pair" data-i18n="known">เลือก 2 ค่าที่ทราบ</label>
+        <select id="pair" aria-describedby="pair-help"></select>
+        <p class="hint" id="pair-help" data-i18n="hint">ช่องสีขาวใช้กรอกข้อมูล ช่องสีฟ้าเป็นผลคำนวณ</p>
+        <div class="fields-grid">
+          <div class="field"><label for="run"><span data-i18n="run">ระยะทางยาว (แนวราบ)</span><small id="run-tag"></small></label><div class="input-wrap"><input id="run" type="text" inputmode="decimal" autocomplete="off" value="12" aria-describedby="status"><span data-i18n="metre">ม.</span></div></div>
+          <div class="field"><label for="rise"><span data-i18n="rise">ระยะทางสูง</span><small id="rise-tag"></small></label><div class="input-wrap"><input id="rise" type="text" inputmode="decimal" autocomplete="off" aria-describedby="status"><span data-i18n="metre">ม.</span></div></div>
+          <div class="field"><label for="length"><span data-i18n="length">ระยะทางเอียง</span><small id="length-tag"></small></label><div class="input-wrap"><input id="length" type="text" inputmode="decimal" autocomplete="off" aria-describedby="status"><span data-i18n="metre">ม.</span></div></div>
+          <div class="field"><label for="ratio"><span data-i18n="ratio">ความลาดชัน 1:XX</span><small id="ratio-tag"></small></label><div class="input-wrap"><input id="ratio" type="text" autocomplete="off" value="1:12" aria-describedby="ratio-help status"></div><p id="ratio-help" class="field-help" data-i18n="ratioHelp">กรอก 1:12 หรือ 12 · แนวตั้ง : แนวราบ</p></div>
+          <div class="field"><label for="percentage"><span data-i18n="percentage">ความลาดชันเป็น %</span><small id="percentage-tag"></small></label><div class="input-wrap"><input id="percentage" type="text" inputmode="decimal" autocomplete="off" aria-describedby="percentage-help status"><span>%</span></div><p id="percentage-help" class="field-help" data-i18n="percentageHelp">กรอก 5 หรือ 5%</p></div>
+        </div>
         <p id="status" role="status" aria-live="polite"></p>
-        <button id="reset" type="button"><span aria-hidden="true">↺</span> Reset</button>
+        <button id="reset" type="button"><span aria-hidden="true">↺</span> <span data-i18n="reset">ล้างค่า</span></button>
       </section>
-      <section class="panel drawing" aria-labelledby="section-title">
-        <div class="section-heading"><h2 id="section-title">Slope section</h2><span class="live-tag"><i></i> LIVE GEOMETRY</span></div>
-        <div class="diagram-wrap"><svg id="diagram" viewBox="0 0 720 420" role="img" aria-labelledby="svg-title svg-desc" preserveAspectRatio="xMidYMid meet"><title id="svg-title">Slope side section</title><desc id="svg-desc"></desc><defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M 24 0 L 0 0 0 24" fill="none" stroke="#e7edf0" stroke-width="0.6"/></pattern></defs><rect width="720" height="420" fill="url(#grid)"/><g id="geometry"></g></svg></div>
-        <div class="drawing-footer"><span>SECTION A–A</span><span>True proportions · dimensions in m</span></div>
-      </section>
+      <div class="visual-column">
+        <section class="panel drawing" aria-labelledby="section-title">
+          <div class="section-heading"><h2 id="section-title" data-i18n="section">รูปตัดความลาดชัน</h2><span class="live-tag"><i></i><span data-i18n="live">ปรับตามข้อมูล</span></span></div>
+          <div class="diagram-wrap"><svg id="diagram" viewBox="0 0 720 420" role="img" aria-labelledby="svg-title svg-desc" preserveAspectRatio="xMidYMid meet"><title id="svg-title" data-i18n="section">รูปตัดความลาดชัน</title><desc id="svg-desc"></desc><defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M 24 0 L 0 0 0 24" fill="none" stroke="#e7edf0" stroke-width="0.6"/></pattern></defs><rect width="720" height="420" fill="url(#grid)"/><g id="geometry"></g></svg></div>
+          <div class="drawing-footer"><span data-i18n="sectionCode">รูปตัด A–A</span><span data-i18n="scale">สัดส่วนจริง · ระยะเป็นเมตร</span></div>
+        </section>
+        <section class="results" aria-label="ผลคำนวณ / Results" aria-live="polite">
+          <article><p data-i18n="percentage">ความลาดชันเป็น %</p><div id="percent-result" class="metric">—</div><small data-i18n="percentFormula">ระยะสูง ÷ ระยะราบ × 100</small></article>
+          <article><p data-i18n="ratio">ความลาดชัน 1:XX</p><div id="ratio-result" class="metric">—</div><small data-i18n="ratioFormula">แนวตั้ง : แนวราบ</small></article>
+          <article><p data-i18n="angle">มุมเอียง</p><div id="angle-result" class="metric">—</div><small data-i18n="angleFormula">วัดจากแนวราบ</small></article>
+        </section>
+        <aside class="method-note"><strong data-i18n="noteTitle">เลือกคู่ข้อมูลอย่างไร?</strong><p data-i18n="note">ใช้ระยะ 2 ค่า หรือระยะ 1 ค่า + ความลาดชัน 1 ค่า อัตราส่วนกับ % เพียงอย่างเดียวบอกมุมได้ แต่หาระยะจริงไม่ได้</p></aside>
+      </div>
     </div>
-    <section class="results" aria-label="Calculated slope metrics" aria-live="polite">
-      <article><p>SLOPE PERCENTAGE</p><div id="percent" class="metric">—</div><small>Vertical Rise / Horizontal Run × 100</small></article>
-      <article><p>SLOPE RATIO</p><div id="ratio" class="metric">—</div><small>Vertical : Horizontal · 1 : N</small></article>
-      <article><p>INCLINATION ANGLE</p><div id="angle" class="metric">—</div><small>Measured from the horizontal</small></article>
-    </section>
-    <footer><span>PL DESIGN <b>/</b> Landscape architecture tools</span><span>Geometry only · Check project requirements separately.</span></footer>
+    <footer><span>PL DESIGN <b>/</b> <span data-i18n="footer">เครื่องมือสำหรับภูมิสถาปนิก</span></span><span data-i18n="scope">คำนวณเรขาคณิต · ตรวจสอบข้อกำหนดโครงการแยกต่างหาก</span></footer>
+    <noscript>กรุณาเปิด JavaScript เพื่อใช้เครื่องคำนวณ / Enable JavaScript to use the calculator.</noscript>
   </main>
 </body>
 </html>
