@@ -11,6 +11,7 @@ const t = key => SlopeTranslations[language][key];
 function format(number, digits = 3) {
   if (number === null) return '—';
   if (number === Infinity) return '∞';
+  if (!Number.isFinite(number)) return '—';
   if (number === 0) return '0';
   return Math.abs(number) < 0.001 || Math.abs(number) >= 1e7 ? number.toExponential(digits) : number.toLocaleString('en-GB', {maximumFractionDigits:digits});
 }
@@ -52,13 +53,16 @@ function syncLevelInputs(levels) {
 }
 
 function landingSettings() {
-  return {enabled:$('use-slope-landings').checked, maximumRun:$('max-flight-run').value, equal:$('equal-slope-landings').checked, sharedLength:$('slope-landing-length').value, lengths:separateLandingValues};
+  return {enabled:$('use-slope-landings').checked, runMode:document.querySelector('input[name="slope-run-mode"]:checked')?.value || 'extend', maximumRun:$('max-flight-run').value, equal:$('equal-slope-landings').checked, sharedLength:$('slope-landing-length').value, lengths:separateLandingValues};
 }
 
 function requiredLandingCount(section) {
-  if (!$('use-slope-landings').checked || !section || section.run === 0) return 0;
+  if (!$('use-slope-landings').checked) return 0;
+  if (section?.layout) return section.layout.landingCount;
+  const rawRun = Number($('run').value);
+  if (!(rawRun > 0)) return 0;
   const maximum = LayoutCalculator.positive($('max-flight-run').value, 'MAX_RUN');
-  return Math.max(0, Math.ceil(section.run / maximum - 1e-12) - 1);
+  return Math.max(0, Math.ceil(rawRun / maximum - 1e-12) - 1);
 }
 
 function renderIndividualLandings(count) {
@@ -71,26 +75,29 @@ function renderIndividualLandings(count) {
     const name = document.createElement('span'); name.textContent = `${t('landingNumber')} ${index + 1}`; label.appendChild(name);
     const wrap = document.createElement('div'); wrap.className = 'input-wrap';
     const input = document.createElement('input'); input.id = `slope-landing-${index}`; input.inputMode = 'decimal'; input.autocomplete = 'off'; input.placeholder = '1.50'; input.value = separateLandingValues[index] || '';
-    input.addEventListener('input', () => { separateLandingValues[index] = input.value; update(); });
+    input.addEventListener('input', () => { separateLandingValues[index] = input.value; recalculateSlope(); update(); });
     const unit = document.createElement('span'); unit.textContent = t('metre');
     wrap.append(input, unit); field.append(label, wrap); container.appendChild(field);
   }
 }
 
-function currentLayout(section) {
-  const base = LayoutCalculator.slope(section, {enabled:false});
-  $('slope-layout-status').textContent = ''; $('slope-layout-status').className = 'config-status';
-  if (!$('use-slope-landings').checked) return base;
+function prepareSlopeLandingInputs(section = null) {
+  if (!$('use-slope-landings').checked || $('equal-slope-landings').checked) return;
   try {
     const count = requiredLandingCount(section);
-    if (!$('equal-slope-landings').checked && $('slope-individual-landings').children.length !== count) renderIndividualLandings(count);
-    const layout = LayoutCalculator.slope(section, landingSettings());
-    $('slope-layout-status').textContent = layout.landingCount ? t('layoutReady') : t('noLandingNeeded');
-    return layout;
-  } catch (error) {
-    $('slope-layout-status').textContent = t('errors')[error.code] || t('errors').LANDING;
-    $('slope-layout-status').className = 'config-status error';
-    return base;
+    if ($('slope-individual-landings').children.length !== count) renderIndividualLandings(count);
+  } catch (_) { /* The status area reports invalid configuration. */ }
+}
+
+function recalculateSlope() {
+  prepareSlopeLandingInputs(state.result);
+  state = SlopeInputState.recalculate(state, landingSettings());
+  if (state.result && !$('equal-slope-landings').checked) {
+    const count = state.result.layout.landingCount;
+    if ($('slope-individual-landings').children.length !== count) {
+      renderIndividualLandings(count);
+      state = SlopeInputState.recalculate(state, landingSettings());
+    }
   }
 }
 
@@ -124,7 +131,7 @@ function draw(section, layout, levels) {
     if (Number.isFinite(landingLevel)) intermediate.push(`<text class="segment-text" x="${flightEndX + 5}" y="${flightEndY - 8}">${formatLevel(landingLevel)}</text>`);
     flightEndX += layout.landingLengths[index] * safeScale;
   }
-  $('svg-desc').textContent = `${t('diagramRun')} ${format(section.run)} ${t('metre')}, ${t('diagramRise')} ${format(section.rise)} ${t('metre')}, ${layout.flights} ${t('flights')}, ${layout.landingCount} ${t('landings')}.`;
+  $('svg-desc').textContent = `${t('diagramRun')} ${format(layout.rampRun)} ${t('metre')}, ${t('diagramRise')} ${format(section.rise)} ${t('metre')}, ${layout.flights} ${t('flights')}, ${layout.landingCount} ${t('landings')}.`;
   $('geometry').innerHTML = `
     <path class="shape" d="${fillPath}"/>${surface.join('')}
     <path class="dim" d="M ${startX} 346 V 380 M ${endX} 346 V 380 M ${startX} 370 H ${endX}"/>
@@ -144,7 +151,7 @@ function renderLayoutSummary(layout) {
   const summary = $('slope-layout-summary');
   if (!$('use-slope-landings').checked) { summary.hidden = true; summary.innerHTML = ''; return; }
   summary.hidden = false;
-  summary.innerHTML = `<article><small>${t('flights')}</small><strong>${layout.flights}</strong></article><article><small>${t('landings')}</small><strong>${layout.landingCount}</strong></article><article><small>${t('perFlightRun')}</small><strong>${format(layout.flightRun)} ${t('metre')}</strong></article><article><small>${t('overallFootprint')}</small><strong>${format(layout.overallRun)} ${t('metre')}</strong></article>`;
+  summary.innerHTML = `<article><small>${t('flights')}</small><strong>${layout.flights}</strong></article><article><small>${t('landings')}</small><strong>${layout.landingCount}</strong></article><article><small>${t('perFlightRun')}</small><strong>${format(layout.flightRun)} ${t('metre')}</strong></article><article><small>${t('rampRunTotal')}</small><strong>${format(layout.rampRun)} ${t('metre')}</strong></article><article><small>${t('totalLandingRun')}</small><strong>${format(layout.totalLandingRun)} ${t('metre')}</strong></article><article><small>${t('overallFootprint')}</small><strong>${format(layout.overallRun)} ${t('metre')}</strong></article>`;
 }
 
 function update() {
@@ -160,16 +167,26 @@ function update() {
   $('slope-individual-landings').hidden = $('equal-slope-landings').checked;
   $('sources').textContent = active.length ? `${t('using')} ${active.map(t).join(' + ')}` : '';
   const levels = completeLevels(section?.rise ?? 0); syncLevelInputs(levels);
+  const showOverall = Boolean(section && section.status !== 'needs-distance' && $('use-slope-landings').checked);
+  $('slope-flight-heading').hidden = !showOverall;
+  $('slope-overall-results').hidden = !showOverall;
   if (section) {
     $('percent-result').textContent = `${format(section.percentage)}%`; $('ratio-result').textContent = `1 : ${format(section.ratio)}`; $('angle-result').textContent = `${format(section.angle)}°`;
+    $('overall-percent-result').textContent = `${format(section.overallPercentage)}%`; $('overall-ratio-result').textContent = `1 : ${format(section.overallRatio)}`; $('overall-angle-result').textContent = `${format(section.overallAngle)}°`;
     const partial = section.status === 'needs-distance'; $('status').className = partial ? 'notice' : ''; $('status').textContent = t(partial ? 'needsDistance' : section.rise === 0 ? 'level' : section.run === 0 ? 'vertical' : 'ready');
     if (partial) { emptyDiagram(true); $('slope-layout-summary').hidden = true; }
-    else { const layout = currentLayout(section); draw(section, layout, levels); renderLayoutSummary(layout); }
+    else {
+      const layout = section.layout;
+      $('slope-layout-status').textContent = $('use-slope-landings').checked ? (layout.landingCount ? t('layoutReady') : t('noLandingNeeded')) : '';
+      $('slope-layout-status').className = 'config-status';
+      prepareSlopeLandingInputs(section); draw(section, layout, levels); renderLayoutSummary(layout);
+    }
   } else {
-    for (const key of ['percent-result','ratio-result','angle-result']) $(key).textContent = '—'; emptyDiagram(); $('slope-layout-summary').hidden = true;
+    for (const key of ['percent-result','ratio-result','angle-result','overall-percent-result','overall-ratio-result','overall-angle-result']) $(key).textContent = '—'; emptyDiagram(); $('slope-layout-summary').hidden = true;
     const waiting = error === 'SECOND' && active.length === 1;
     $('status').textContent = waiting ? `${t('received')} ${t(active[0])} · ${t('nextValue')}` : error ? t('errors')[error] || t('errors').INVALID : t('start');
     const invalid = error && !['MISSING','SECOND'].includes(error); $('status').className = invalid ? 'error' : waiting ? 'waiting' : '';
+    if ($('use-slope-landings').checked && invalid) { $('slope-layout-status').textContent = t('errors')[error] || t('errors').INVALID; $('slope-layout-status').className = 'config-status error'; }
     if (invalid) for (const key of active) $(key).setAttribute('aria-invalid','true');
   }
 }
@@ -178,7 +195,7 @@ function useLevelPair() {
   if (!(levelState.startSource && levelState.endSource)) return;
   try {
     const levels = LevelCalculator.difference(levelState.start, levelState.end);
-    levelState.direction = levels.direction; levelState.error = null; $('rise').value = String(Number(levels.rise.toPrecision(12))); state = SlopeInputState.edit(state, 'rise', $('rise').value);
+    levelState.direction = levels.direction; levelState.error = null; $('rise').value = String(Number(levels.rise.toPrecision(12))); state = SlopeInputState.edit(state, 'rise', $('rise').value, landingSettings());
   } catch (error) { levelState.error = error.code || 'LEVEL_INVALID'; }
 }
 
@@ -195,7 +212,8 @@ function setLanguage(next) {
 }
 
 for (const key of fields) $(key).addEventListener('input', () => {
-  state = SlopeInputState.edit(state, key, $(key).value);
+  prepareSlopeLandingInputs();
+  state = SlopeInputState.edit(state, key, $(key).value, landingSettings());
   if (state.result && !state.active.includes('rise') && levelState.startSource && levelState.endSource) levelState.endSource = false;
   if (key === 'rise' && levelState.startSource && levelState.endSource) levelState.endSource = false;
   update();
@@ -203,12 +221,13 @@ for (const key of fields) $(key).addEventListener('input', () => {
 $('start-level').addEventListener('input', () => editLevel('start', $('start-level').value));
 $('end-level').addEventListener('input', () => editLevel('end', $('end-level').value));
 $('slope-descending').addEventListener('change', () => { levelState.direction = $('slope-descending').checked ? -1 : 1; if (levelState.startSource && levelState.endSource) levelState.endSource = false; update(); });
-for (const id of ['use-slope-landings','equal-slope-landings']) $(id).addEventListener('change', update);
-for (const id of ['max-flight-run','slope-landing-length']) $(id).addEventListener('input', update);
+for (const id of ['use-slope-landings','equal-slope-landings']) $(id).addEventListener('change', () => { recalculateSlope(); update(); });
+for (const input of document.querySelectorAll('input[name="slope-run-mode"]')) input.addEventListener('change', () => { recalculateSlope(); update(); });
+for (const id of ['max-flight-run','slope-landing-length']) $(id).addEventListener('input', () => { recalculateSlope(); update(); });
 $('reset').addEventListener('click', () => {
   state = SlopeInputState.create(); levelState = {start:'',end:'',startSource:false,endSource:false,direction:1,error:null}; separateLandingValues = [];
   for (const id of ['start-level','end-level','max-flight-run','slope-landing-length']) $(id).value = '';
-  $('use-slope-landings').checked = false; $('equal-slope-landings').checked = true; $('slope-descending').checked = false; $('slope-individual-landings').innerHTML = '';
+  $('use-slope-landings').checked = false; $('equal-slope-landings').checked = true; $('slope-descending').checked = false; document.querySelector('input[name="slope-run-mode"][value="extend"]').checked = true; $('slope-individual-landings').innerHTML = '';
   update(); $('run').focus();
 });
 for (const button of document.querySelectorAll('[data-language]')) button.addEventListener('click', () => setLanguage(button.dataset.language));
