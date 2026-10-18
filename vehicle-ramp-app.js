@@ -107,8 +107,22 @@
       const rise=i===0?0:result.segments[i-1].endRise, rl=levelData.start+levelData.direction*rise;
       els.geometry.append(svgEl('text',{x:p[0],y:p[1]+(levelData.direction>0?-12:20),'text-anchor':i===0?'start':i===points.length-1?'end':'middle',class:'level-label'},`RL ${levelFmt(rl)}`));
     });
-    const dy=levelData.direction>0?410:390; els.geometry.append(svgEl('line',{x1:ox,y1:dy,x2:ox+usedW,y2:dy,class:'dimension'}));
-    els.geometry.append(svgEl('text',{x:ox+usedW/2,y:dy-8,'text-anchor':'middle',class:'dimension-label'},`${t('totalRunResult')} ${fmt(result.totalRun,2)} m`));
+    const segmentDy=382;
+    result.segments.forEach((segment,i)=>{
+      const x1=points[i][0],x2=points[i+1][0],mid=(x1+x2)/2,span=x2-x1;
+      els.geometry.append(svgEl('line',{x1,y1:points[i][1]+7,x2:x1,y2:segmentDy-7,class:'dimension-extension'}));
+      els.geometry.append(svgEl('line',{x1:x2,y1:points[i+1][1]+7,x2,y2:segmentDy-7,class:'dimension-extension'}));
+      els.geometry.append(svgEl('line',{x1,y1:segmentDy,x2,y2:segmentDy,class:'segment-dimension','data-segment':segment.key}));
+      els.geometry.append(svgEl('line',{x1,y1:segmentDy-6,x2:x1,y2:segmentDy+6,class:'dimension-tick'}));
+      els.geometry.append(svgEl('line',{x1:x2,y1:segmentDy-6,x2,y2:segmentDy+6,class:'dimension-tick'}));
+      const attrs={x:mid,y:segmentDy-9,'text-anchor':'middle',class:'segment-dimension-label','data-segment':segment.key};
+      if (span<54) { attrs.x=mid+2; attrs.y=segmentDy-7; attrs['text-anchor']='start'; attrs.transform=`rotate(-55 ${mid+2} ${segmentDy-7})`; }
+      els.geometry.append(svgEl('text',attrs,`${fmt(segment.run,2)} m`));
+    });
+    const totalDy=432; els.geometry.append(svgEl('line',{x1:ox,y1:totalDy,x2:ox+usedW,y2:totalDy,class:'dimension total-dimension'}));
+    els.geometry.append(svgEl('line',{x1:ox,y1:totalDy-7,x2:ox,y2:totalDy+7,class:'dimension-tick'}));
+    els.geometry.append(svgEl('line',{x1:ox+usedW,y1:totalDy-7,x2:ox+usedW,y2:totalDy+7,class:'dimension-tick'}));
+    els.geometry.append(svgEl('text',{x:ox+usedW/2,y:totalDy-9,'text-anchor':'middle',class:'dimension-label'},`${t('totalRunResult')} ${fmt(result.totalRun,2)} m`));
     $('vehicle-svg-desc').textContent=`${t('sectionTitle')}: ${result.segments.map(s=>`${segmentName(s.key)} ${fmt(s.run,2)} m`).join(', ')}`;
   }
   function calculate() {
