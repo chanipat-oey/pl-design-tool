@@ -2,7 +2,7 @@
   'use strict';
   const translations = {
     th: {
-      brand: 'เครื่องมือออกแบบ', header: 'ภูมิสถาปัตยกรรม / เรขาคณิต', eyebrow: '01 / คำนวณความลาดชัน',
+      brand: 'เครื่องมือออกแบบ', header: 'ภูมิสถาปัตยกรรม / เรขาคณิต', slopeTool:'ความลาดชัน', stairTool:'บันได', vehicleTool:'ทางลาดรถ', eyebrow: '01 / คำนวณความลาดชัน',
       intro: 'กรอกได้ทุกช่อง ตัวเลขและรูปตัดปรับทันที โดยต้องมีระยะอย่างน้อย 1 ค่า',
       dimensions: 'ข้อมูลความลาดชัน', units: 'เมตร / อัตราส่วน / %', known: 'เลือก 2 ค่าที่ทราบ',
       hint: 'พิมพ์ได้เลย ใช้ 2 ค่าที่แก้ล่าสุด โดยมีระยะอย่างน้อย 1 ค่า', input: 'ค่าตั้งต้น', calculated: 'คำนวณ · แก้ได้',
@@ -33,7 +33,7 @@
       }
     },
     en: {
-      brand: 'DESIGN TOOLS', header: 'LANDSCAPE / GEOMETRY', eyebrow: '01 / SLOPE GEOMETRY',
+      brand: 'DESIGN TOOLS', header: 'LANDSCAPE / GEOMETRY', slopeTool:'Slope', stairTool:'Stairs', vehicleTool:'Vehicle Ramp', eyebrow: '01 / SLOPE GEOMETRY',
       intro: 'Type in any field. Values and the section update instantly. Include at least one length.',
       dimensions: 'Slope inputs', units: 'METRES / RATIO / %', known: 'Choose two known values',
       hint: 'Use any field. The two latest edits drive the calculation, including at least one length.', input: 'SOURCE', calculated: 'CALCULATED · EDITABLE',
