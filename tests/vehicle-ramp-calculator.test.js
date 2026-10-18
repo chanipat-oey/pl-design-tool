@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const C=require('../vehicle-ramp-calculator.js');
 const close=(a,b)=>assert.ok(Math.abs(a-b)<1e-9,`${a} != ${b}`);
-const base={totalRise:2,transitionInRun:3,transitionOutRun:3,mainRatio:10};
+const base={totalRise:2,transitionInRun:3,transitionOutRun:3,mainRun:15,mainRatio:10};
 
 test('design mode calculates required main and total run',()=>{const r=C.calculate(base);close(r.transitionRise,.5);close(r.mainRise,1.5);close(r.mainRun,15);close(r.totalRun,21);assert.equal(r.mainStatus,'target');});
 test('entry and exit transition lengths are independent and may exceed 3 m',()=>{const r=C.calculate({...base,transitionInRun:4,transitionOutRun:5});close(r.transitionRun,9);close(r.transitionRise,4/12+5/12);assert.deepEqual(r.minimumWarnings,[]);});
@@ -14,10 +14,15 @@ test('fit mode holds main at 1:10 and reports surplus as level area',()=>{const 
 test('segments below 3 m calculate with an explicit warning',()=>{const r=C.calculate({...base,transitionInRun:2.5});assert.deepEqual(r.minimumWarnings,['transitionIn']);assert.ok(r.totalRun>0);});
 test('rejects transition rise greater than total rise',()=>assert.throws(()=>C.calculate({...base,totalRise:.4}),e=>e.code==='TRANSITION_RISE'));
 test('rejects footprint consumed by transitions',()=>assert.throws(()=>C.calculate({...base,mode:'fit',totalRun:6}),e=>e.code==='FOOTPRINT'));
-test('unchecked custom controls retain all default slopes',()=>{const r=C.calculate({...base,mainRatio:5,transitionInRatio:4});close(r.mainRatio,10);close(r.segments.find(x=>x.key==='transitionIn').ratio,12);assert.deepEqual(r.customWarnings,[]);});
-test('custom main slope accepts trial values and classifies them',()=>{const steep=C.calculate({...base,mainCustom:true,mainRatio:6});close(steep.mainRatio,6);assert.equal(steep.mainStatus,'tooSteep');const flat=C.calculate({...base,mainCustom:true,mainRatio:12});assert.equal(flat.mainStatus,'flatter');assert.equal(flat.customWarnings[0].key,'main');});
+test('main run drives an automatic main slope when custom slope is unchecked',()=>{const r=C.calculate({...base,mainRun:12});close(r.mainRatio,8);close(r.mainRun,12);assert.equal(r.mainStatus,'caution');});
+test('changing transition geometry does not shrink an entered main run',()=>{const r=C.calculate({...base,transitionInRun:4,transitionOutRun:5});close(r.mainRun,15);close(r.totalRun,24);});
+test('unchecked custom controls retain transition defaults and derive main slope from run',()=>{const r=C.calculate({...base,mainRatio:5,transitionInRatio:4});close(r.mainRatio,10);close(r.segments.find(x=>x.key==='transitionIn').ratio,12);assert.deepEqual(r.customWarnings,[]);});
+test('custom main slope calculates main run and classifies trial values',()=>{const steep=C.calculate({...base,mainCustom:true,mainRatio:6});close(steep.mainRatio,6);close(steep.mainRun,9);assert.equal(steep.mainStatus,'tooSteep');const flat=C.calculate({...base,mainCustom:true,mainRatio:12});close(flat.mainRun,18);assert.equal(flat.mainStatus,'flatter');assert.equal(flat.customWarnings[0].key,'main');});
 test('custom entry and exit slopes change geometry independently',()=>{const r=C.calculate({...base,transitionInCustom:true,transitionInRatio:15,transitionOutCustom:true,transitionOutRatio:9});close(r.transitionRise,3/15+3/9);assert.deepEqual(r.customWarnings.map(x=>x.key),['transitionIn','transitionOut']);});
 test('custom optional intro and outro slopes are applied when enabled',()=>{const r=C.calculate({...base,introEnabled:true,introRun:3,introCustom:true,introRatio:25,outroEnabled:true,outroRun:3,outroCustom:true,outroRatio:16});close(r.segments[0].ratio,25);close(r.segments.at(-1).ratio,16);});
 test('invalid enabled custom ratios are rejected by segment',()=>{assert.throws(()=>C.calculate({...base,mainCustom:true,mainRatio:0}),e=>e.code==='MAIN_RATIO');assert.throws(()=>C.calculate({...base,transitionInCustom:true,transitionInRatio:'x'}),e=>e.code==='TRANSITION_IN_RATIO');});
+test('main run below 6 m calculates with a warning',()=>{const r=C.calculate({...base,mainRun:5.5});close(r.mainRun,5.5);assert.equal(r.mainRunWarning,true);});
+test('fit mode warns when remaining main run is below 6 m',()=>{const r=C.calculate({...base,mode:'fit',totalRun:11});close(r.mainRun,5);assert.equal(r.mainRunWarning,true);});
+test('invalid automatic main run is rejected',()=>{for(const n of [0,-1,''])assert.throws(()=>C.calculate({...base,mainRun:n}),e=>e.code==='MAIN_RUN');});
 test('all lengths reject zero, negative and nonnumeric input',()=>{for(const n of [0,-1,'x',''])assert.throws(()=>C.calculate({...base,totalRise:n}),e=>e.code==='TOTAL_RISE');});
 test('translation keys remain aligned between Thai and English',()=>{const tr=require('../vehicle-ramp-translations.js');assert.deepEqual(Object.keys(tr.th).sort(),Object.keys(tr.en).sort());assert.deepEqual(Object.keys(tr.th.errors).sort(),Object.keys(tr.en.errors).sort());});

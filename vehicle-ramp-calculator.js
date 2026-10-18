@@ -3,6 +3,7 @@
 
   const numeric = /^(?:\d+(?:\.\d*)?|\.\d+)$/;
   const MIN_TRANSITION = 3;
+  const MIN_MAIN_RUN = 6;
 
   function failure(code) {
     const error = new Error(code);
@@ -59,9 +60,14 @@
 
     let mainRatio, mainRun, extraRun = 0, rawMainRatio;
     if (mode === 'design') {
-      mainRatio = values.mainCustom ? ratio(values.mainRatio, 'MAIN_RATIO') : 10;
+      if (values.mainCustom) {
+        mainRatio = ratio(values.mainRatio, 'MAIN_RATIO');
+        mainRun = mainRise * mainRatio;
+      } else {
+        mainRun = positive(values.mainRun, 'MAIN_RUN');
+        mainRatio = mainRun / mainRise;
+      }
       rawMainRatio = mainRatio;
-      mainRun = mainRise * mainRatio;
     } else {
       const availableRun = positive(values.totalRun, 'TOTAL_RUN');
       const availableMainRun = availableRun - transitionRun;
@@ -94,6 +100,7 @@
 
     const totalRun = cumulativeRun;
     const minimumWarnings = ordered.filter(item => ['intro','transitionIn','transitionOut','outro'].includes(item.key) && item.run < MIN_TRANSITION - 1e-9).map(item => item.key);
+    const mainRunWarning = mainRun < MIN_MAIN_RUN - 1e-9;
     const standards = {intro:20,transitionIn:12,main:10,transitionOut:12,outro:20};
     const customFlags = {intro:Boolean(values.introCustom),transitionIn:Boolean(values.transitionInCustom),main:mode === 'design' && Boolean(values.mainCustom),transitionOut:Boolean(values.transitionOutCustom),outro:Boolean(values.outroCustom)};
     const customWarnings = ordered.filter(item => customFlags[item.key] && Number.isFinite(item.ratio) && Math.abs(item.ratio - standards[item.key]) > 1e-9).map(item => ({key:item.key,ratio:item.ratio,standard:standards[item.key]}));
@@ -104,11 +111,11 @@
       rawMainRatio, mainPercentage:100/mainRatio, mainAngle:Math.atan2(1,mainRatio)*180/Math.PI,
       extraRun, overallRatio:totalRun/totalRise, overallPercentage:totalRise/totalRun*100,
       overallAngle:Math.atan2(totalRise,totalRun)*180/Math.PI,
-      mainStatus, minimumWarnings, customWarnings, segments:ordered
+      mainStatus, minimumWarnings, mainRunWarning, customWarnings, segments:ordered
     };
   }
 
-  const api = {calculate, positive, ratio, MIN_TRANSITION};
+  const api = {calculate, positive, ratio, MIN_TRANSITION, MIN_MAIN_RUN};
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.VehicleRampCalculator = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
