@@ -3,7 +3,11 @@
   const $ = id => document.getElementById(id);
   const els = {
     start:$('vehicle-start-level'), end:$('vehicle-end-level'), rise:$('vehicle-total-rise'), run:$('vehicle-total-run'), descending:$('vehicle-descending'),
-    introOn:$('vehicle-use-intro'), intro:$('vehicle-intro-run'), inRun:$('vehicle-transition-in-run'), main:$('vehicle-main-ratio'), outRun:$('vehicle-transition-out-run'), outroOn:$('vehicle-use-outro'), outro:$('vehicle-outro-run'),
+    introOn:$('vehicle-use-intro'), intro:$('vehicle-intro-run'), introCustom:$('vehicle-intro-custom'), introRatio:$('vehicle-intro-ratio'),
+    inRun:$('vehicle-transition-in-run'), inCustom:$('vehicle-transition-in-custom'), inRatio:$('vehicle-transition-in-ratio'),
+    mainCustom:$('vehicle-main-custom'), main:$('vehicle-main-ratio'),
+    outRun:$('vehicle-transition-out-run'), outCustom:$('vehicle-transition-out-custom'), outRatio:$('vehicle-transition-out-ratio'),
+    outroOn:$('vehicle-use-outro'), outro:$('vehicle-outro-run'), outroCustom:$('vehicle-outro-custom'), outroRatio:$('vehicle-outro-ratio'),
     introFields:$('vehicle-intro-fields'), outroFields:$('vehicle-outro-fields'), runField:$('vehicle-total-run-field'), mainField:$('vehicle-main-ratio-field'), mainCalc:$('vehicle-main-calculated'),
     status:$('vehicle-status'), geometry:$('vehicle-geometry'), table:$('vehicle-table-body'), check:$('vehicle-check')
   };
@@ -30,11 +34,17 @@
   }
 
   function values(levelData) {
-    return {mode:mode(),totalRise:levelData.rise,totalRun:els.run.value,introEnabled:els.introOn.checked,introRun:els.intro.value,transitionInRun:els.inRun.value,mainRatio:els.main.value,transitionOutRun:els.outRun.value,outroEnabled:els.outroOn.checked,outroRun:els.outro.value};
+    return {mode:mode(),totalRise:levelData.rise,totalRun:els.run.value,
+      introEnabled:els.introOn.checked,introRun:els.intro.value,introCustom:els.introCustom.checked,introRatio:els.introRatio.value,
+      transitionInRun:els.inRun.value,transitionInCustom:els.inCustom.checked,transitionInRatio:els.inRatio.value,
+      mainCustom:els.mainCustom.checked,mainRatio:els.main.value,
+      transitionOutRun:els.outRun.value,transitionOutCustom:els.outCustom.checked,transitionOutRatio:els.outRatio.value,
+      outroEnabled:els.outroOn.checked,outroRun:els.outro.value,outroCustom:els.outroCustom.checked,outroRatio:els.outroRatio.value};
   }
   function syncControls() {
     const fit=mode()==='fit'; els.runField.hidden=!fit; els.mainField.hidden=fit; els.mainCalc.hidden=!fit;
     els.introFields.hidden=!els.introOn.checked; els.outroFields.hidden=!els.outroOn.checked;
+    els.introRatio.disabled=!els.introCustom.checked; els.inRatio.disabled=!els.inCustom.checked; els.main.disabled=fit || !els.mainCustom.checked; els.outRatio.disabled=!els.outCustom.checked; els.outroRatio.disabled=!els.outroCustom.checked;
   }
   function clearResults() {
     ['main-ratio','main-percent','total-run','overall','total-rise','extra'].forEach(k=>$(`vehicle-${k}-result`).textContent='—');
@@ -55,8 +65,9 @@
   }
   function renderCheck(result) {
     const statusText=t(result.mainStatus); const warnings=result.minimumWarnings.map(segmentName);
+    const customWarnings=result.customWarnings.map(item=>`${segmentName(item.key)} 1:${fmt(item.ratio,2)} (${t('defaultSlope')} 1:${fmt(item.standard,0)})`);
     els.check.hidden=false; els.check.className=`vehicle-check ${result.mainStatus==='tooSteep'?'danger':result.mainStatus==='caution'?'warning':'success'}`;
-    els.check.innerHTML=`<strong>${statusText}</strong>${warnings.length?`<p>${t('minimumWarning')} ${warnings.join(', ')}</p>`:''}`;
+    els.check.innerHTML=`<strong>${statusText}</strong>${warnings.length?`<p>${t('minimumWarning')} ${warnings.join(', ')}</p>`:''}${customWarnings.length?`<p>${t('customWarning')} ${customWarnings.join(', ')}</p>`:''}`;
   }
   function renderTable(result, levelData) {
     els.table.replaceChildren();
@@ -65,6 +76,7 @@
       let check=t('pass');
       if (segment.key==='main' && result.mainStatus==='tooSteep') check=t('exceedsLimit');
       else if (result.minimumWarnings.includes(segment.key)) check=t('belowMinimum');
+      else if (result.customWarnings.some(item=>item.key===segment.key)) check=t('customValue');
       const tr=document.createElement('tr');
       tr.innerHTML=`<th>${segmentName(segment.key)}</th><td>${segment.ratio===Infinity?'—':`1:${fmt(segment.ratio,2)}`}<small>${fmt(segment.percentage,2)}%</small></td><td>${fmt(segment.run,2)} m</td><td>${fmt(segment.rise,3)} m</td><td>RL ${levelFmt(start)}</td><td>RL ${levelFmt(end)}</td><td class="check-${check===t('pass')?'pass':'warn'}">${check}</td>`;
       els.table.appendChild(tr);
@@ -106,7 +118,9 @@
     document.querySelectorAll('[data-language]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.language===next))); calculate();
   }
   function reset() {
-    [els.start,els.end,els.rise,els.run].forEach(x=>{x.value='';x.readOnly=false;}); els.descending.checked=false; els.introOn.checked=false;els.outroOn.checked=false;els.intro.value='3';els.inRun.value='3';els.main.value='10';els.outRun.value='3';els.outro.value='3';document.querySelector('[name="vehicle-mode"][value="design"]').checked=true; syncControls(); els.status.className='status';els.status.textContent=t('start');clearResults();
+    [els.start,els.end,els.rise,els.run].forEach(x=>{x.value='';x.readOnly=false;}); els.descending.checked=false; els.introOn.checked=false;els.outroOn.checked=false;
+    [els.introCustom,els.inCustom,els.mainCustom,els.outCustom,els.outroCustom].forEach(x=>x.checked=false);
+    els.intro.value='3';els.introRatio.value='20';els.inRun.value='3';els.inRatio.value='12';els.main.value='10';els.outRun.value='3';els.outRatio.value='12';els.outro.value='3';els.outroRatio.value='20';document.querySelector('[name="vehicle-mode"][value="design"]').checked=true; syncControls(); els.status.className='status';els.status.textContent=t('start');clearResults();
   }
   document.querySelectorAll('input').forEach(input=>{input.addEventListener('input',calculate);input.addEventListener('change',calculate);});
   document.querySelectorAll('[data-language]').forEach(button=>button.addEventListener('click',()=>setLanguage(button.dataset.language)));

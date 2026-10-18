@@ -18,11 +18,9 @@
     return number;
   }
 
-  function ratio(value) {
+  function ratio(value, code = 'CUSTOM_RATIO') {
     const text = String(value ?? '').trim().replace(/^1\s*:\s*/, '');
-    const number = positive(text, 'MAIN_RATIO');
-    if (number < 7 || number > 10) failure('MAIN_RATIO');
-    return number;
+    return positive(text, code);
   }
 
   function segment(key, run, slopeRatio, required = true) {
@@ -43,12 +41,16 @@
     const transitionInRun = positive(values.transitionInRun, 'TRANSITION_IN');
     const transitionOutRun = positive(values.transitionOutRun, 'TRANSITION_OUT');
     const outroRun = outroEnabled ? positive(values.outroRun, 'OUTRO') : 0;
+    const introRatio = values.introCustom ? ratio(values.introRatio, 'INTRO_RATIO') : 20;
+    const transitionInRatio = values.transitionInCustom ? ratio(values.transitionInRatio, 'TRANSITION_IN_RATIO') : 12;
+    const transitionOutRatio = values.transitionOutCustom ? ratio(values.transitionOutRatio, 'TRANSITION_OUT_RATIO') : 12;
+    const outroRatio = values.outroCustom ? ratio(values.outroRatio, 'OUTRO_RATIO') : 20;
 
     const transitionSegments = [];
-    if (introEnabled) transitionSegments.push(segment('intro', introRun, 20));
-    transitionSegments.push(segment('transitionIn', transitionInRun, 12));
-    transitionSegments.push(segment('transitionOut', transitionOutRun, 12));
-    if (outroEnabled) transitionSegments.push(segment('outro', outroRun, 20));
+    if (introEnabled) transitionSegments.push(segment('intro', introRun, introRatio));
+    transitionSegments.push(segment('transitionIn', transitionInRun, transitionInRatio));
+    transitionSegments.push(segment('transitionOut', transitionOutRun, transitionOutRatio));
+    if (outroEnabled) transitionSegments.push(segment('outro', outroRun, outroRatio));
 
     const transitionRun = transitionSegments.reduce((sum, item) => sum + item.run, 0);
     const transitionRise = transitionSegments.reduce((sum, item) => sum + item.rise, 0);
@@ -57,7 +59,7 @@
 
     let mainRatio, mainRun, extraRun = 0, rawMainRatio;
     if (mode === 'design') {
-      mainRatio = ratio(values.mainRatio);
+      mainRatio = values.mainCustom ? ratio(values.mainRatio, 'MAIN_RATIO') : 10;
       rawMainRatio = mainRatio;
       mainRun = mainRise * mainRatio;
     } else {
@@ -76,11 +78,11 @@
     }
 
     const ordered = [];
-    if (introEnabled) ordered.push(segment('intro', introRun, 20));
-    ordered.push(segment('transitionIn', transitionInRun, 12));
+    if (introEnabled) ordered.push(segment('intro', introRun, introRatio));
+    ordered.push(segment('transitionIn', transitionInRun, transitionInRatio));
     ordered.push(segment('main', mainRun, mainRatio, false));
-    ordered.push(segment('transitionOut', transitionOutRun, 12));
-    if (outroEnabled) ordered.push(segment('outro', outroRun, 20));
+    ordered.push(segment('transitionOut', transitionOutRun, transitionOutRatio));
+    if (outroEnabled) ordered.push(segment('outro', outroRun, outroRatio));
     if (extraRun > 1e-9) ordered.push(segment('extra', extraRun, Infinity, false));
 
     let cumulativeRun = 0, cumulativeRise = 0;
@@ -92,14 +94,17 @@
 
     const totalRun = cumulativeRun;
     const minimumWarnings = ordered.filter(item => ['intro','transitionIn','transitionOut','outro'].includes(item.key) && item.run < MIN_TRANSITION - 1e-9).map(item => item.key);
-    const mainStatus = mainRatio < 7 - 1e-9 ? 'tooSteep' : mainRatio < 10 - 1e-9 ? 'caution' : extraRun > 1e-9 ? 'extra' : 'target';
+    const standards = {intro:20,transitionIn:12,main:10,transitionOut:12,outro:20};
+    const customFlags = {intro:Boolean(values.introCustom),transitionIn:Boolean(values.transitionInCustom),main:mode === 'design' && Boolean(values.mainCustom),transitionOut:Boolean(values.transitionOutCustom),outro:Boolean(values.outroCustom)};
+    const customWarnings = ordered.filter(item => customFlags[item.key] && Number.isFinite(item.ratio) && Math.abs(item.ratio - standards[item.key]) > 1e-9).map(item => ({key:item.key,ratio:item.ratio,standard:standards[item.key]}));
+    const mainStatus = mainRatio < 7 - 1e-9 ? 'tooSteep' : mainRatio < 10 - 1e-9 ? 'caution' : extraRun > 1e-9 ? 'extra' : mainRatio > 10 + 1e-9 ? 'flatter' : 'target';
 
     return {
       mode, totalRise, totalRun, transitionRun, transitionRise, mainRun, mainRise, mainRatio,
       rawMainRatio, mainPercentage:100/mainRatio, mainAngle:Math.atan2(1,mainRatio)*180/Math.PI,
       extraRun, overallRatio:totalRun/totalRise, overallPercentage:totalRise/totalRun*100,
       overallAngle:Math.atan2(totalRise,totalRun)*180/Math.PI,
-      mainStatus, minimumWarnings, segments:ordered
+      mainStatus, minimumWarnings, customWarnings, segments:ordered
     };
   }
 
