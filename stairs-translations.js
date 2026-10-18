@@ -2,7 +2,7 @@
   'use strict';
   const translations = {
     th: {
-      brand:'เครื่องมือออกแบบ', header:'ภูมิสถาปัตยกรรม / เรขาคณิต', slopeTool:'ความลาดชัน', stairTool:'บันได',
+      brand:'เครื่องมือออกแบบ', header:'ภูมิสถาปัตยกรรม / เรขาคณิต', slopeTool:'ความลาดชัน', stairTool:'บันได', vehicleTool:'ทางลาดรถ',
       eyebrow:'02 / คำนวณบันได', intro:'กรอก 2 ค่า ตัวเลขและรูปตัดทั้งสองแบบจะปรับทันที', inputsTitle:'ข้อมูลบันได', units:'จำนวน / ม. / %',
       hint:'พิมพ์ได้ทุกช่อง ระบบใช้ 2 ค่าที่แก้ล่าสุดเป็นค่าตั้งต้น', input:'ค่าตั้งต้น', calculated:'คำนวณ · แก้ได้', using:'ยึดค่า:',
       risers:'จำนวนลูกตั้ง', treads:'จำนวนลูกนอน', totalRise:'ความต่างระดับรวม', totalRun:'ระยะทางนอนรวม', riserHeight:'ความสูงลูกตั้งที่ต้องการ', treadDepth:'ความลึกลูกนอนที่ต้องการ', ratio:'ความลาดชัน 1:XX', percentage:'ความลาดชันเป็น %',
@@ -18,7 +18,7 @@
       errors:{SECOND:'กรอกอีก 1 ค่าเพื่อคำนวณ',INVALID:'กรอกตัวเลขที่มากกว่า 0 ไม่ใช้ค่าติดลบหรือตัวอักษร',COUNT:'จำนวนขั้นต้องเป็นจำนวนเต็มตั้งแต่ 1 ถึง 200',PAIR:'คู่ข้อมูลไม่ถูกต้อง',DUPLICATE_SLOPE:'1:XX และ % เป็นข้อมูลความลาดชันเดียวกัน กรุณาเปลี่ยนหนึ่งช่องเป็นจำนวนหรือระยะ',COUNT_RELATION:'จำนวนลูกนอนรวมต้องเท่ากับจำนวนลูกตั้งลบจำนวนช่วงบันได',GEOMETRY:'ข้อมูลชุดนี้ไม่สามารถสร้างรูปตัดบันไดที่เป็นไปได้',LEVEL_INVALID:'กรุณากรอกค่าระดับเป็นตัวเลข เช่น +10.250 หรือ -0.500',LANDING:'กรุณากรอกความยาวชานพักทุกแห่งให้มากกว่า 0',FOOTPRINT:'ความยาวชานพักรวมต้องน้อยกว่าระยะทางนอนที่มีอยู่',FLIGHTS:'จำนวนช่วงบันไดต้องเป็นจำนวนเต็ม 1 ถึง 30',FLIGHTS_GEOMETRY:'จำนวนช่วงบันไดต้องไม่มากกว่าจำนวนลูกตั้ง'}
     },
     en: {
-      brand:'DESIGN TOOLS', header:'LANDSCAPE / GEOMETRY', slopeTool:'Slope', stairTool:'Stairs',
+      brand:'DESIGN TOOLS', header:'LANDSCAPE / GEOMETRY', slopeTool:'Slope', stairTool:'Stairs', vehicleTool:'Vehicle Ramp',
       eyebrow:'02 / STAIR GEOMETRY', intro:'Enter two values. Both calculated sections update immediately.', inputsTitle:'Stair inputs', units:'COUNT / m / %',
       hint:'Use any field. The two latest edits drive the calculation.', input:'SOURCE', calculated:'CALCULATED · EDITABLE', using:'Using:',
       risers:'Number of Risers', treads:'Number of Treads', totalRise:'Total Rise', totalRun:'Total Run', riserHeight:'Target Riser Height', treadDepth:'Target Tread Depth', ratio:'Slope Ratio 1:N', percentage:'Slope Percentage',
