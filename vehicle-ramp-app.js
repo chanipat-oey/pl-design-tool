@@ -5,7 +5,7 @@
     start:$('vehicle-start-level'), end:$('vehicle-end-level'), rise:$('vehicle-total-rise'), run:$('vehicle-total-run'), descending:$('vehicle-descending'),
     introOn:$('vehicle-use-intro'), intro:$('vehicle-intro-run'), introCustom:$('vehicle-intro-custom'), introRatio:$('vehicle-intro-ratio'),
     inRun:$('vehicle-transition-in-run'), inCustom:$('vehicle-transition-in-custom'), inRatio:$('vehicle-transition-in-ratio'),
-    mainCustom:$('vehicle-main-custom'), main:$('vehicle-main-ratio'),
+    mainRun:$('vehicle-main-run'), mainCustom:$('vehicle-main-custom'), main:$('vehicle-main-ratio'),
     outRun:$('vehicle-transition-out-run'), outCustom:$('vehicle-transition-out-custom'), outRatio:$('vehicle-transition-out-ratio'),
     outroOn:$('vehicle-use-outro'), outro:$('vehicle-outro-run'), outroCustom:$('vehicle-outro-custom'), outroRatio:$('vehicle-outro-ratio'),
     introFields:$('vehicle-intro-fields'), outroFields:$('vehicle-outro-fields'), runField:$('vehicle-total-run-field'), mainField:$('vehicle-main-ratio-field'), mainCalc:$('vehicle-main-calculated'),
@@ -37,14 +37,14 @@
     return {mode:mode(),totalRise:levelData.rise,totalRun:els.run.value,
       introEnabled:els.introOn.checked,introRun:els.intro.value,introCustom:els.introCustom.checked,introRatio:els.introRatio.value,
       transitionInRun:els.inRun.value,transitionInCustom:els.inCustom.checked,transitionInRatio:els.inRatio.value,
-      mainCustom:els.mainCustom.checked,mainRatio:els.main.value,
+      mainRun:els.mainRun.value,mainCustom:els.mainCustom.checked,mainRatio:els.main.value,
       transitionOutRun:els.outRun.value,transitionOutCustom:els.outCustom.checked,transitionOutRatio:els.outRatio.value,
       outroEnabled:els.outroOn.checked,outroRun:els.outro.value,outroCustom:els.outroCustom.checked,outroRatio:els.outroRatio.value};
   }
   function syncControls() {
     const fit=mode()==='fit'; els.runField.hidden=!fit; els.mainField.hidden=fit; els.mainCalc.hidden=!fit;
     els.introFields.hidden=!els.introOn.checked; els.outroFields.hidden=!els.outroOn.checked;
-    els.introRatio.disabled=!els.introCustom.checked; els.inRatio.disabled=!els.inCustom.checked; els.main.disabled=fit || !els.mainCustom.checked; els.outRatio.disabled=!els.outCustom.checked; els.outroRatio.disabled=!els.outroCustom.checked;
+    els.introRatio.disabled=!els.introCustom.checked; els.inRatio.disabled=!els.inCustom.checked; els.main.disabled=fit || !els.mainCustom.checked; els.mainRun.readOnly=fit || els.mainCustom.checked; els.outRatio.disabled=!els.outCustom.checked; els.outroRatio.disabled=!els.outroCustom.checked;
   }
   function clearResults() {
     ['main-ratio','main-percent','total-run','overall','total-rise','extra'].forEach(k=>$(`vehicle-${k}-result`).textContent='—');
@@ -62,12 +62,16 @@
     $('vehicle-total-rise-result').textContent=`${fmt(result.totalRise,3)} m`;
     $('vehicle-extra-result').textContent=`${fmt(result.extraRun,2)} m`;
     els.mainCalc.querySelector('strong').textContent=`1:${fmt(result.mainRatio,2)} · ${fmt(result.mainPercentage,2)}%`;
+    if (mode()==='fit' || els.mainCustom.checked) els.mainRun.value=String(Number(result.mainRun.toFixed(6)));
+    if (!els.mainCustom.checked) els.main.value=String(Number(result.mainRatio.toFixed(6)));
   }
   function renderCheck(result) {
     const statusText=t(result.mainStatus); const warnings=result.minimumWarnings.map(segmentName);
     const customWarnings=result.customWarnings.map(item=>`${segmentName(item.key)} 1:${fmt(item.ratio,2)} (${t('defaultSlope')} 1:${fmt(item.standard,0)})`);
-    els.check.hidden=false; els.check.className=`vehicle-check ${result.mainStatus==='tooSteep'?'danger':result.mainStatus==='caution'?'warning':'success'}`;
-    els.check.innerHTML=`<strong>${statusText}</strong>${warnings.length?`<p>${t('minimumWarning')} ${warnings.join(', ')}</p>`:''}${customWarnings.length?`<p>${t('customWarning')} ${customWarnings.join(', ')}</p>`:''}`;
+    const hasCritical=warnings.length || result.mainRunWarning || result.mainStatus==='tooSteep';
+    const hasWarning=customWarnings.length || ['caution','flatter'].includes(result.mainStatus);
+    els.check.hidden=false; els.check.className=`vehicle-check ${hasCritical?'danger':hasWarning?'warning':'success'}`;
+    els.check.innerHTML=`<strong>${statusText}</strong>${warnings.length?`<p>${t('minimumWarning')} ${warnings.join(', ')}</p>`:''}${result.mainRunWarning?`<p>${t('mainMinimumWarning')}</p>`:''}${customWarnings.length?`<p>${t('customWarning')} ${customWarnings.join(', ')}</p>`:''}`;
   }
   function renderTable(result, levelData) {
     els.table.replaceChildren();
@@ -75,6 +79,8 @@
       const start=levelData.start + levelData.direction*segment.startRise, end=levelData.start + levelData.direction*segment.endRise;
       let check=t('pass');
       if (segment.key==='main' && result.mainStatus==='tooSteep') check=t('exceedsLimit');
+      else if (segment.key==='main' && result.mainRunWarning) check=t('mainBelowMinimum');
+      else if (segment.key==='main' && result.mainStatus==='flatter') check=t('flatterThanLimit');
       else if (result.minimumWarnings.includes(segment.key)) check=t('belowMinimum');
       else if (result.customWarnings.some(item=>item.key===segment.key)) check=t('customValue');
       const tr=document.createElement('tr');
@@ -120,7 +126,7 @@
   function reset() {
     [els.start,els.end,els.rise,els.run].forEach(x=>{x.value='';x.readOnly=false;}); els.descending.checked=false; els.introOn.checked=false;els.outroOn.checked=false;
     [els.introCustom,els.inCustom,els.mainCustom,els.outCustom,els.outroCustom].forEach(x=>x.checked=false);
-    els.intro.value='3';els.introRatio.value='20';els.inRun.value='3';els.inRatio.value='12';els.main.value='10';els.outRun.value='3';els.outRatio.value='12';els.outro.value='3';els.outroRatio.value='20';document.querySelector('[name="vehicle-mode"][value="design"]').checked=true; syncControls(); els.status.className='status';els.status.textContent=t('start');clearResults();
+    els.intro.value='3';els.introRatio.value='20';els.inRun.value='3';els.inRatio.value='12';els.mainRun.value='6';els.main.value='10';els.outRun.value='3';els.outRatio.value='12';els.outro.value='3';els.outroRatio.value='20';document.querySelector('[name="vehicle-mode"][value="design"]').checked=true; syncControls(); els.status.className='status';els.status.textContent=t('start');clearResults();
   }
   document.querySelectorAll('input').forEach(input=>{input.addEventListener('input',calculate);input.addEventListener('change',calculate);});
   document.querySelectorAll('[data-language]').forEach(button=>button.addEventListener('click',()=>setLanguage(button.dataset.language)));
