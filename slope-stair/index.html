@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Landscape Slope Calculator — landscape slope geometry from lengths, ratio or percentage. Thai and English.">
+  <title>Landscape Slope Calculator</title>
+  <link rel="stylesheet" href="../styles.css?v=14">
+  <script defer src="../calculator.js?v=14"></script><script defer src="../input-state.js?v=14"></script><script defer src="../level-calculator.js?v=14"></script><script defer src="../layout-calculator.js?v=14"></script><script defer src="../translations.js?v=14"></script><script defer src="../app.js?v=14"></script>
+</head>
+<body>
+  <header><a class="brand" href="../" aria-label="Landscape Slope Calculator">LDT<span data-i18n="brand">เครื่องมือออกแบบ</span></a><div class="header-tools"><nav class="tool-nav" aria-label="Design tools"><a href="./" aria-current="page" data-i18n="slopeTool">ความลาดชัน</a><a href="stairs.html" data-i18n="stairTool">บันได</a><a href="../vehicle-ramp/" data-i18n="vehicleTool">ทางลาดรถ</a></nav><span class="header-note" data-i18n="header">ภูมิสถาปัตยกรรม / เรขาคณิต</span><div class="language-switch" role="group" aria-label="ภาษา / Language"><button type="button" data-language="th" aria-pressed="true" lang="th">ไทย</button><button type="button" data-language="en" aria-pressed="false" lang="en">English</button></div></div></header>
+  <main>
+    <div class="intro"><p class="eyebrow" data-i18n="eyebrow">01 / คำนวณความลาดชัน</p><h1>Landscape Slope Calculator<span class="dot">.</span></h1><p data-i18n="intro">กรอกได้ทุกช่อง ตัวเลขและรูปตัดปรับทันที โดยต้องมีระยะอย่างน้อย 1 ค่า</p></div>
+    <div class="workspace">
+      <section class="panel inputs" aria-labelledby="dimensions-title">
+        <div class="section-heading"><h2 id="dimensions-title" data-i18n="dimensions">ข้อมูลความลาดชัน</h2><span class="unit-tag" data-i18n="units">เมตร / อัตราส่วน / %</span></div>
+        <p class="hint" id="input-help" data-i18n="hint">พิมพ์ได้เลย ใช้ 2 ค่าที่แก้ล่าสุด โดยมีระยะอย่างน้อย 1 ค่า</p>
+        <div class="fields-grid">
+          <div class="field"><label for="run"><span data-i18n="run">ระยะทางยาว (แนวราบ)</span><small id="run-tag"></small></label><div class="input-wrap"><input id="run" type="text" inputmode="decimal" autocomplete="off" placeholder="12" aria-describedby="status"><span data-i18n="metre">ม.</span></div></div>
+          <div class="field"><label for="rise"><span data-i18n="rise">ระยะทางสูง</span><small id="rise-tag"></small></label><div class="input-wrap"><input id="rise" type="text" inputmode="decimal" autocomplete="off" placeholder="1" aria-describedby="status"><span data-i18n="metre">ม.</span></div></div>
+          <div class="field"><label for="length"><span data-i18n="length">ระยะทางเอียง</span><small id="length-tag"></small></label><div class="input-wrap"><input id="length" type="text" inputmode="decimal" autocomplete="off" placeholder="12.04" aria-describedby="status"><span data-i18n="metre">ม.</span></div></div>
+          <div class="field"><label for="ratio"><span data-i18n="ratio">ความลาดชัน 1:XX</span><small id="ratio-tag"></small></label><div class="input-wrap ratio-wrap"><span class="ratio-prefix" aria-hidden="true">1 :</span><input id="ratio" type="text" inputmode="decimal" autocomplete="off" placeholder="12" aria-label="XX" aria-describedby="ratio-help status"></div><p id="ratio-help" class="field-help" data-i18n="ratioHelp">กรอกเฉพาะเลข XX เช่น 12</p></div>
+          <div class="field"><label for="percentage"><span data-i18n="percentage">ความลาดชันเป็น %</span><small id="percentage-tag"></small></label><div class="input-wrap"><input id="percentage" type="text" inputmode="decimal" autocomplete="off" placeholder="5" aria-describedby="percentage-help status"><span>%</span></div><p id="percentage-help" class="field-help" data-i18n="percentageHelp">กรอกตัวเลข เช่น 5</p></div>
+        </div>
+        <section class="config-block" aria-labelledby="slope-level-title">
+          <div class="config-heading"><h3 id="slope-level-title" data-i18n="levelsTitle">ค่าระดับ</h3><span data-i18n="optional">ไม่บังคับ</span></div>
+          <p data-i18n="levelsHelp">กรอกระดับต้นและปลายแทนระยะสูงได้ หรือกรอกระดับเดียวเพื่อคำนวณอีกระดับ</p>
+          <div class="settings-grid">
+            <div class="field"><label for="start-level"><span data-i18n="startLevel">ระดับเริ่มต้น</span><small id="start-level-tag"></small></label><div class="input-wrap"><input id="start-level" type="text" inputmode="decimal" autocomplete="off" placeholder="+10.250"><span data-i18n="metre">ม.</span></div></div>
+            <div class="field"><label for="end-level"><span data-i18n="endLevel">ระดับปลายทาง</span><small id="end-level-tag"></small></label><div class="input-wrap"><input id="end-level" type="text" inputmode="decimal" autocomplete="off" placeholder="+11.150"><span data-i18n="metre">ม.</span></div></div>
+          </div>
+          <label class="check-row"><input id="slope-descending" type="checkbox"><span data-i18n="descending">ปลายทางลดระดับจากจุดเริ่มต้น</span></label>
+          <p id="level-status" class="config-status" aria-live="polite"></p>
+        </section>
+        <section class="config-block" aria-labelledby="slope-landing-title">
+          <div class="config-heading"><h3 id="slope-landing-title" data-i18n="landingsTitle">ชานพักทางลาด</h3><span data-i18n="optional">ไม่บังคับ</span></div>
+          <label class="check-row primary-check"><input id="use-slope-landings" type="checkbox"><span data-i18n="useLandings">ใส่ชานพัก</span></label>
+          <div id="slope-landing-options" class="conditional" hidden>
+            <fieldset class="run-mode"><legend data-i18n="runModeTitle">วิธีคิดระยะทางยาว</legend><label><input type="radio" name="slope-run-mode" value="extend" checked><span><strong data-i18n="extendRun">ขยายระยะทางรวม</strong><small data-i18n="extendRunHelp">ต่อชานพักเพิ่มจากระยะทางลาด</small></span></label><label><input type="radio" name="slope-run-mode" value="fixed"><span><strong data-i18n="fixedRun">คงระยะทางยาวเดิม</strong><small data-i18n="fixedRunHelp">ชานพักอยู่ภายในระยะทางยาวที่กรอก</small></span></label></fieldset>
+            <p class="mode-note" data-i18n="flightSlopeInputHelp">ค่า 1:XX และ % ใช้กับช่วงทางลาด โดยไม่รวมชานพัก</p>
+            <div class="field"><label for="max-flight-run"><span data-i18n="maximumRun">ระยะทางนอนสูงสุดต่อช่วง</span></label><div class="input-wrap"><input id="max-flight-run" type="text" inputmode="decimal" autocomplete="off" placeholder="6.00"><span data-i18n="metre">ม.</span></div></div>
+            <label class="check-row"><input id="equal-slope-landings" type="checkbox" checked><span data-i18n="equalLandings">ชานพักทุกแห่งยาวเท่ากัน</span></label>
+            <div id="slope-shared-landing" class="field"><label for="slope-landing-length"><span data-i18n="landingLength">ความยาวชานพัก</span></label><div class="input-wrap"><input id="slope-landing-length" type="text" inputmode="decimal" autocomplete="off" placeholder="1.50"><span data-i18n="metre">ม.</span></div></div>
+            <div id="slope-individual-landings" class="individual-landings"></div>
+            <p id="slope-layout-status" class="config-status" aria-live="polite"></p>
+          </div>
+        </section>
+        <p id="sources" class="source-note" aria-live="polite"></p>
+        <p id="status" role="status" aria-live="polite"></p>
+        <button id="reset" type="button"><span aria-hidden="true">↺</span> <span data-i18n="reset">ล้างค่า</span></button>
+      </section>
+      <div class="visual-column">
+        <section class="panel drawing" aria-labelledby="section-title">
+          <div class="section-heading"><h2 id="section-title" data-i18n="section">รูปตัดความลาดชัน</h2><span class="live-tag"><i></i><span data-i18n="live">ปรับตามข้อมูล</span></span></div>
+          <div class="diagram-wrap"><svg id="diagram" viewBox="0 0 720 420" role="img" aria-labelledby="svg-title svg-desc" preserveAspectRatio="xMidYMid meet"><title id="svg-title" data-i18n="section">รูปตัดความลาดชัน</title><desc id="svg-desc"></desc><defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M 24 0 L 0 0 0 24" fill="none" stroke="#e7edf0" stroke-width="0.6"/></pattern></defs><rect width="720" height="420" fill="url(#grid)"/><g id="geometry"></g></svg></div>
+          <div class="drawing-footer"><span data-i18n="sectionCode">รูปตัด A–A</span><span data-i18n="scale">สัดส่วนจริง · ระยะเป็นเมตร</span></div>
+        </section>
+        <h3 id="slope-flight-heading" class="result-group-title" data-i18n="flightSlopeTitle" hidden>ความลาดชันของช่วงทางลาด</h3>
+        <section class="results" aria-label="ผลคำนวณ / Results" aria-live="polite">
+          <article><p data-i18n="percentage">ความลาดชันเป็น %</p><div id="percent-result" class="metric">—</div><small data-i18n="percentFormula">ระยะสูง ÷ ระยะราบ × 100</small></article>
+          <article><p data-i18n="ratio">ความลาดชัน 1:XX</p><div id="ratio-result" class="metric">—</div><small data-i18n="ratioFormula">แนวตั้ง : แนวราบ</small></article>
+          <article><p data-i18n="angle">มุมเอียง</p><div id="angle-result" class="metric">—</div><small data-i18n="angleFormula">วัดจากแนวราบ</small></article>
+        </section>
+        <section id="slope-overall-results" class="overall-result-block" hidden aria-live="polite"><h3 data-i18n="overallSlopeTitle">ความลาดชันเฉลี่ยรวมชานพัก</h3><div class="results compact-results"><article><p data-i18n="percentage">ความลาดชันเป็น %</p><div id="overall-percent-result" class="metric">—</div></article><article><p data-i18n="ratio">ความลาดชัน 1:XX</p><div id="overall-ratio-result" class="metric">—</div></article><article><p data-i18n="angle">มุมเอียง</p><div id="overall-angle-result" class="metric">—</div></article></div></section>
+        <section id="slope-layout-summary" class="layout-summary" hidden aria-live="polite"></section>
+        <aside class="method-note"><strong data-i18n="noteTitle">เลือกคู่ข้อมูลอย่างไร?</strong><p data-i18n="note">ใช้ระยะ 2 ค่า หรือระยะ 1 ค่า + ความลาดชัน 1 ค่า อัตราส่วนกับ % เพียงอย่างเดียวบอกมุมได้ แต่หาระยะจริงไม่ได้</p></aside>
+      </div>
+    </div>
+    <footer><span>LANDSCAPE DESIGN TOOLS <b>/</b> <span data-i18n="footer">เครื่องมือสำหรับภูมิสถาปนิก</span></span><span data-i18n="scope">คำนวณเรขาคณิต · ตรวจสอบข้อกำหนดโครงการแยกต่างหาก</span></footer>
+    <noscript>กรุณาเปิด JavaScript เพื่อใช้เครื่องคำนวณ / Enable JavaScript to use the calculator.</noscript>
+  </main>
+</body>
+</html>
+
+
